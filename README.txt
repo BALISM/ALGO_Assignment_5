@@ -42,7 +42,7 @@ Run individual questions
 
 Run all at once
   python run_all.py grid.txt               -> runs all four and writes all output files
-
+  python visualizer.py grid.txt
 Assignment Coverage
   Q1 Task 1 : Graph modelling, vertices/edges, permanent/destructible obstacles,
               state definition, directed vs undirected discussion         [10 marks]
