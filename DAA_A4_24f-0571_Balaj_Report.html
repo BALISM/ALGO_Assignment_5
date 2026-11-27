@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>DAA Assignment 4 Report — Balaj (24f-0571)</title>
+<style>
+  @page { size: A4; margin: 20mm 15mm; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+  }
+  h1 { color: #0f172a; font-size: 1.8rem; border-bottom: 2px solid #2563eb; padding-bottom: 6px; margin-top: 24px; }
+  h2 { color: #1e3a8a; font-size: 1.35rem; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-top: 20px; }
+  h3 { color: #2563eb; font-size: 1.1rem; margin-top: 16px; }
+  p { margin: 10px 0; text-align: justify; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #0f172a; }
+  pre { background: #0f172a; color: #f8fafc; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 0.82rem; }
+  pre code { background: none; color: inherit; padding: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+  th { background: #f8fafc; font-weight: 600; color: #1e293b; }
+  tr:nth-child(even) { background: #f8fafc; }
+  hr { border: none; border-top: 1px solid #cbd5e1; margin: 24px 0; }
+  blockquote { border-left: 4px solid #2563eb; margin: 12px 0; padding-left: 12px; color: #475569; background: #f8fafc; }
+  .header-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+  @media print {
+    body { padding: 0; max-width: 100%; }
+    h1, h2 { page-break-after: avoid; }
+    table, pre { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<h1>National University of Computer & Emerging Sciences (FAST-NUCES)</h1>
+<h3>Chiniot-Faisalabad Campus — Department of Computer Science</h3>
+<h3>CS2009: Design and Analysis of Algorithms — Fall 2026</h3>
+---
+<h1>ASSIGNMENT NO. 4 REPORT</h1>
+<h2>Intelligent Robot Navigation & Minimum Spanning Trees</h2>
+<p><strong>Student Name:</strong> Balaj  <br/><strong>Roll Number:</strong> 24f-0571  <br/><strong>Instructor:</strong> Dr. Hashim Yasin  <br/><strong>Submission Date:</strong> 27 November 2026  <br/><strong>Repository / Folder Name:</strong> <code>DAA_A4_24f-0571_Balaj</code></p>
+<hr/>
+<h2>Executive Summary</h2>
+<p>This report documents the complete design, algorithmic formulation, implementation, empirical evaluation, and theoretical analysis for <strong>Assignment 4: Intelligent Robot Navigation and Minimum Spanning Trees (MST)</strong>.</p>
+<p>The assignment addresses two central algorithmic challenges on a $15 \times 15$ grid environment:<br/>1. <strong>Intelligent State-Space Search (BFS and DFS):</strong> Guiding an energy-constrained robot from Start $(7, 1)$ to Goal $(15, 14)$ across permanent obstacles and destructible blue obstacles ($B, B+, B-$) with asymmetric movement costs, energy depletion, bonus gains, and negative edge weights.<br/>2. <strong>Minimum Spanning Tree Computation (Prim’s and Kruskal’s):</strong> Transforming the grid into an undirected weighted graph to compute the optimal spanning tree connecting all accessible cells with zero cycles at minimal geometric weight.<br/>3. <strong>Comprehensive Complexity and Theoretical Proofs:</strong> Formal asymptotic analysis of representations (adjacency matrix vs. adjacency list) and proofs regarding Kruskal tie-handling and linear-time MST construction with bounded integer weights.</p>
+<p>In strict adherence to course guidelines, <strong>no built-in or library data structures</strong> (such as Python's <code>heapq</code>, <code>collections.deque</code>, <code>queue</code>, or <code>sorted()</code>) were used. All data structures—including a FIFO Queue, LIFO Stack, Binary Min-Heap, Disjoint-Set Union (DSU with union by rank and path compression), and Merge Sort—were built entirely from scratch.</p>
+<hr/>
+<h2>1. Question 1: Intelligent Robot Navigation using BFS & DFS</h2>
+<h3>1.1 Problem Formulation & Environment Overview</h3>
+<p>The navigation environment is defined on a $15 \times 15$ grid with coordinate convention $(1, 1)$ at the bottom-left and $(15, 15)$ at the top-right. The robot begins at $(7, 1)$ with $10$ initial energy units and must navigate to $(15, 14)$.</p>
+<pre><code>Coordinates: (1,1) = Bottom-Left, (15,15) = Top-Right
+Start Position : (7, 1)   [Free cell]
+Goal Position  : (15, 14)  [Free cell]
+Grid Dimensions: 15 rows x 15 columns = 225 total cells
+Total Walls    : 82 permanent orange obstacle cells (O)
+Accessible Cells: 143 cells (free + blue destructibles)
+Blue Obstacles : 15 cells (Normal B: 5, Bonus B+: 5, Penalty B-: 5)</code></pre>
+<p>#### Movement Rules & Step Costs<br/>The robot can execute at most one step at a time from its current cell across six permitted directions:<br/>* <strong>Right:</strong> $(+1, 0)$ with cost $+2$<br/>* <strong>Left:</strong> $(-1, 0)$ with cost $-1$<br/>* <strong>Up:</strong> $(0, +1)$ with cost $+2$<br/>* <strong>Down:</strong> $(0, -1)$ with cost $-1$<br/>* <strong>Diagonally Up-Right:</strong> $(+1, +1)$ with cost $+3$<br/>* <strong>Diagonally Up-Left:</strong> $(-1, +1)$ with cost $-3$</p>
+<p><em>Note:</em> Downward diagonal movements (Down-Right and Down-Left) are strictly disallowed.</p>
+<p>#### Destructible Obstacle Rules & Energy Constraints<br/>1. Robot starts with $10$ energy units.<br/>2. The robot cannot step directly onto an intact blue cell; it must <strong>destroy</strong> the obstacle from an adjacent accessible cell prior to entry.<br/>3. Destroying any blue cell consumes <strong>2 energy units</strong> and incurs a <strong>navigation cost of +5 units</strong>.<br/>4. Once destroyed, a blue obstacle permanently becomes an ordinary free cell and remains accessible for all subsequent movements.<br/>5. <strong>Bonus cells ($B+$):</strong> Entering a bonus cell awards $+3$ energy units upon first entry.<br/>6. <strong>Penalty cells ($B-$):</strong> Entering a penalty cell incurs an additional navigation cost of $+5$ units upon first entry.<br/>7. Energy can never become negative; if remaining energy $< 2$, destruction cannot occur, rendering that intact blue cell impassable.<br/>8. Each bonus or penalty effect applies <strong>exactly once</strong> per cell.</p>
+<hr/>
+<h3>1.2 Task 1: Graph Modelling and State Representation</h3>
+<p>#### 1. Graph Representation of the Grid<br/>The navigation grid cannot be modelled merely as a static 2D planar graph because the connectivity of the environment changes dynamically as obstacles are destroyed, and the legality of moves depends on available energy. We model the problem as a <strong>Weighted Directed State-Space Graph</strong> $\mathcal{G} = (\mathcal{S}, \mathcal{A}, c)$:<br/>* $\mathcal{S}$: The set of all reachable robot states.<br/>* $\mathcal{A}$: Directed transitions between valid states representing a move or a destruction followed by a move.<br/>* $c$: The cost function $c: \mathcal{A} \rightarrow \mathbb{R}$, which can take positive, zero, or negative values.</p>
+<p>#### 2. Identification of Vertices, Edges, and Movement Costs<br/>* <strong>Vertices:</strong> Each vertex is a state tuple $s = (x, y, \text{energy}, \text{mask})$.<br/>* <strong>Edges:</strong> A directed edge exists from state $s$ to state $s'$ if:<br/>  1. $(x', y')$ is within grid boundaries ($1 \le x', y' \le 15$).<br/>  2. $(x', y')$ is not a permanent orange obstacle ($O$).<br/>  3. If $(x', y')$ is an intact blue cell, the robot has energy $\ge 2$ to destroy it.<br/>* <strong>Costs:</strong> <br/>  $$\text{Edge Cost} = \text{Movement Cost} + (\text{Destruction Cost if intact: } 5) + (\text{Penalty Cost if } B-: 5)$$</p>
+<p>#### 3. Representation of Permanent and Destructible Obstacles<br/>* <strong>Permanent Obstacles ($O$):</strong> Excluded entirely from the vertex set. No directed edge enters an orange cell.<br/>* <strong>Destructible Obstacles ($B, B+, B-$):</strong> Maintained via an indexed bitmask. An intact blue cell acts as a conditional barrier requiring an energy threshold of $2$. Once destroyed, its bit is set to $1$ in the bitmask, and it acts as an ordinary free cell carrying standard movement costs with no further energy deduction or bonus/penalty re-triggering.</p>
+<p>#### 4. How the Graph Evolves Upon Destruction<br/>Graph evolution is captured without mutating the underlying grid array by transitioning between <strong>state-space layers</strong>. The bitmask has $15$ bits (one per blue cell). Destruction transitions the robot from a state in layer $\text{mask}$ to a state in layer $\text{mask} \mid (1 \ll i)$. In this new layer, cell $i$ has incoming edges from all adjacent accessible cells with normal step costs, reflecting permanent accessibility.</p>
+<p>#### 5. Directed vs. Undirected Nature of the Graph<br/>The navigation graph is strictly <strong>DIRECTED</strong> for three fundamental reasons:<br/>1. <strong>Asymmetry of Movement Costs:</strong> Reversing a move has an asymmetric cost. Moving Right has cost $+2$, but moving Left has cost $-1$. Moving Up has cost $+2$, but moving Down has cost $-1$. Moving Up-Right has cost $+3$, but its reverse is not even an allowed movement.<br/>2. <strong>Asymmetry of Movement Directions:</strong> Permitted directions are $\{R, L, U, D, UR, UL\}$. Downward diagonal transitions ($DR, DL$) do not exist. Therefore, an edge $(x, y) \rightarrow (x+1, y+1)$ via $UR$ has no reciprocal edge $(x+1, y+1) \rightarrow (x, y)$.<br/>3. <strong>One-Way State Transitions:</strong> Destroying an obstacle consumes energy and permanently alters the bitmask. This is an irreversible, strictly one-way state transition.</p>
+<p>#### 6. Robot State Definition<br/>A state is formally defined as:<br/>$$s = (x, y, \text{energy}, \text{mask})$$<br/>Where:<br/>* $x \in \{1, \dots, 15\}$: Column coordinate.<br/>* $y \in \{1, \dots, 15\}$: Row coordinate.<br/>* $\text{energy} \in \{0, \dots, 10\}$: Current remaining energy units.<br/>* $\text{mask} \in \{0, \dots, 2^{15}-1\}$: An integer bitmask where bit $i = 1$ indicates that the $i$-th blue obstacle has been destroyed.</p>
+<p><em>Deduplication Key:</em> Since energy is a deterministic function of the destroyed mask ($\text{energy} = 10 - 2 \cdot |\text{destroyed}| + 3 \cdot |\text{destroyed } B+|$) along any cycle-free path, visited state equality is uniquely determined by $(x, y, \text{mask})$.</p>
+<hr/>
+<h3>1.3 Task 2: Breadth-First Search (BFS) Navigation</h3>
+<p>BFS explores the state space level-by-level using a FIFO queue.</p>
+<pre><code>--------------------------------------------------------------------------------
+ALGORITHM 1: Breadth-First Search (FIFO Queue)
+--------------------------------------------------------------------------------
+Input : Robot start state s0 = (7, 1, 10, 0), Goal coordinate (15, 14)
+Output: Optimal path in terms of edge hops, action sequence, cost, remaining energy
+1: Queue Q &lt;- empty; Visited &lt;- empty set; Parent &lt;- empty map
+2: Q.enqueue(s0); Visited.add(key(s0)); Parent[key(s0)] &lt;- null
+3: while Q is not empty do
+4:     s &lt;- Q.dequeue()
+5:     if (s.x, s.y) == Goal then return ReconstructPath(s, Parent)
+6:     for each (s', step_cost, actions) in Robot.Successors(s) do
+7:         if key(s') not in Visited then
+8:             Visited.add(key(s'))
+9:             Parent[key(s')] &lt;- (s, step_cost, actions)
+10:            Q.enqueue(s')
+11: return Failure
+--------------------------------------------------------------------------------</code></pre>
+<p>#### BFS Empirical Results<br/>* <strong>States Expanded (Traversal Length):</strong> 984 states<br/>* <strong>Goal Reachability:</strong> <strong>YES</strong> — reached at $(15, 14)$<br/>* <strong>Path Length:</strong> <strong>15 moves</strong><br/>* <strong>Total Navigation Cost:</strong> <strong>51 units</strong><br/>* <strong>Remaining Energy:</strong> <strong>6 units</strong><br/>* <strong>Blue Obstacles Destroyed (2):</strong> $(9, 3)$ $[B]$ and $(11, 11)$ $[B-]$</p>
+<p>#### Complete Reconstructed BFS Path<br/>$$(7,1) \xrightarrow{\text{Up}} (7,2) \xrightarrow{\text{UR}} (8,3) \xrightarrow{\text{Destroy+Right}} (9,3) \xrightarrow{\text{UR}} (10,4) \xrightarrow{\text{Up}} (10,5) \xrightarrow{\text{Up}} (10,6) \xrightarrow{\text{Up}} (10,7) \xrightarrow{\text{Up}} (10,8) \xrightarrow{\text{Up}} (10,9) \xrightarrow{\text{Up}} (10,10) \xrightarrow{\text{Destroy+UR}} (11,11) \xrightarrow{\text{UR}} (12,12) \xrightarrow{\text{UR}} (13,13) \xrightarrow{\text{UR}} (14,14) \xrightarrow{\text{Right}} (15,14)$$</p>
+<p>#### Step-by-Step Action Sequence (BFS)<br/><pre><code>1. MOVE Up       to (7,2)   move cost +2                     [Energy: 10]<br/> 2. MOVE Up-Right to (8,3)   move cost +3                     [Energy: 10]<br/> 3. DESTROY (9,3) [B]        energy -2, cost +5               [Energy:  8]<br/> 4. MOVE Right    to (9,3)   move cost +2                     [Energy:  8]<br/> 5. MOVE Up-Right to (10,4)  move cost +3                     [Energy:  8]<br/> 6. MOVE Up       to (10,5)  move cost +2                     [Energy:  8]<br/> 7. MOVE Up       to (10,6)  move cost +2                     [Energy:  8]<br/> 8. MOVE Up       to (10,7)  move cost +2                     [Energy:  8]<br/> 9. MOVE Up       to (10,8)  move cost +2                     [Energy:  8]<br/>10. MOVE Up       to (10,9)  move cost +2                     [Energy:  8]<br/>11. MOVE Up       to (10,10) move cost +2                     [Energy:  8]<br/>12. DESTROY (11,11) [B-]     energy -2, cost +5               [Energy:  6]<br/>13. MOVE Up-Right to (11,11) move cost +3, penalty cost +5    [Energy:  6]<br/>14. MOVE Up-Right to (12,12) move cost +3                     [Energy:  6]<br/>15. MOVE Up-Right to (13,13) move cost +3                     [Energy:  6]<br/>16. MOVE Up-Right to (14,14) move cost +3                     [Energy:  6]<br/>17. MOVE Right    to (15,14) move cost +2                     [Energy:  6]<br/>Total Navigation Cost = 2 + 3 + (5+2) + 3 + 2 + 2 + 2 + 2 + 2 + 2 + (5+3+5) + 3 + 3 + 3 + 2 = 51</code></pre></p>
+<p>#### Discussion: Does BFS Guarantee a Minimum-Cost Path?<br/><strong>Answer: NO.</strong> BFS guarantees the shortest path <strong>only in terms of edge count (unweighted fewest hops)</strong>, or when all edge weights are identical and positive.</p>
+<p>In this environment, BFS does not guarantee a minimum-cost path because:<br/>1. <strong>Asymmetric & Negative Edge Costs:</strong> Edge costs vary from $-3$ to $+3$. A path with fewer hops can accumulate expensive positive edges, whereas a longer path utilizing negative edges (Left $-1$, Down $-1$, Up-Left $-3$) can achieve a lower total cost.<br/>2. <strong>Negative-Cost Cycles:</strong> The graph contains directed cycles with negative net cost:<br/>   $$\text{Up-Left } (-3) + \text{Right } (+2) + \text{Down } (-1) = -2$$<br/>   Traversing this 3-cell loop returns the robot to the starting coordinate with a net cost reduction of $-2$. Because BFS ignores costs during frontier expansion, it fails to exploit cost-reducing transitions.<br/>3. <strong>Empirical Proof:</strong> BFS found a 15-move path costing <strong>51</strong>. However, our DFS experiment with reverse successor ordering discovered a 78-move path costing only <strong>34</strong>. This conclusively proves that BFS does not minimize cost in this setting.</p>
+<hr/>
+<h3>1.4 Task 3: Depth-First Search (DFS) Navigation</h3>
+<p>Two DFS implementations were developed:<br/>* <strong>(a) Iterative DFS:</strong> Implemented with an explicit custom LIFO Stack. To ensure strict equivalence with recursive DFS, successor states are pushed in <strong>reverse order</strong> so that the first successor is popped and explored first. Marking occurs upon pop.<br/>* <strong>(b) Recursive DFS:</strong> Implemented via recursive function calls using a dedicated large-stack worker thread (<code>threading.Thread</code> with 256MB stack) to prevent recursion limit overflows on large state graphs.</p>
+<p>#### DFS Empirical Results<br/>Both implementations produced <strong>identical traversal orders and paths</strong>:</p>
+<table><thead><tr><th>Metric</th><th>Iterative DFS (Stack)</th><th>Recursive DFS</th></tr></thead><tbody><tr><td><strong>States Expanded</strong></td><td>42</td><td>42</td></tr><tr><td><strong>Goal Reachable</strong></td><td>YES</td><td>YES</td></tr><tr><td><strong>Path Moves</strong></td><td>40 moves</td><td>40 moves</td></tr><tr><td><strong>Total Navigation Cost</strong></td><td>68 units</td><td>68 units</td></tr><tr><td><strong>Remaining Energy</strong></td><td>7 units</td><td>7 units</td></tr><tr><td><strong>Blue Obstacles Destroyed</strong></td><td>3: $(9,3), (13,11), (12,11)$</td><td>3: $(9,3), (13,11), (12,11)$</td></tr><tr><td><strong>Identical Traversal Order</strong></td><td><strong>TRUE</strong></td><td><strong>TRUE</strong></td></tr><tr><td><strong>Identical Final Path</strong></td><td><strong>TRUE</strong></td><td><strong>TRUE</strong></td></tr></tbody></table>
+#### Complete Reconstructed DFS Path (40 moves)
+$$(7,1) \rightarrow (6,1) \rightarrow (6,2) \rightarrow (7,2) \rightarrow (7,3) \rightarrow (8,3) \xrightarrow{\text{Destroy}} (9,3) \rightarrow (10,3) \rightarrow (10,4) \rightarrow (11,4) \rightarrow (12,4) \rightarrow (13,4) \rightarrow (14,4) \rightarrow (14,5) \rightarrow (13,5) \rightarrow (12,5) \rightarrow (11,5) \rightarrow (10,5) \rightarrow (10,6) \rightarrow (10,7) \rightarrow (10,8) \rightarrow (10,9) \rightarrow (9,9) \rightarrow (9,10) \rightarrow (10,10) \rightarrow (11,10) \rightarrow (12,10) \rightarrow (13,10) \xrightarrow{\text{Destroy}} (13,11) \xrightarrow{\text{Destroy}} (12,11) \rightarrow (13,11) \rightarrow (13,12) \rightarrow (14,12) \rightarrow (13,13) \rightarrow (12,13) \rightarrow (11,13) \rightarrow (11,14) \rightarrow (12,14) \rightarrow (13,14) \rightarrow (14,14) \rightarrow (15,14)$$
+<p>Energy calculation:<br/>$$\text{Start (10)} - \text{Destroy }(9,3) [2] - \text{Destroy }(13,11) [2] + \text{Bonus }(13,11) [3] - \text{Destroy }(12,11) [2] = 7 \text{ units remaining}$$</p>
+<p>#### Successor Ordering Experiment<br/>To demonstrate the sensitivity of DFS to successor generation order, three ordering configurations were tested:</p>
+<table><thead><tr><th>Order Label</th><th>Successor Exploration Sequence</th><th>States Expanded</th><th>Moves</th><th>Total Cost</th><th>Final Energy</th></tr></thead><tbody><tr><td><strong>Default</strong></td><td>Right, Left, Up, Down, Up-Right, Up-Left</td><td>42</td><td>40</td><td>68</td><td>7</td></tr><tr><td><strong>Goal-ward</strong></td><td>Up-Right, Up, Right, Up-Left, Left, Down</td><td>43</td><td>42</td><td>75</td><td>4</td></tr><tr><td><strong>Reverse</strong></td><td>Up-Left, Up-Right, Down, Up, Left, Right</td><td>91</td><td>78</td><td><strong>34</strong></td><td>4</td></tr></tbody></table>
+#### Discussion: Why DFS Does Not Produce an Optimal Path
+DFS operates on a <strong>greedy commitment</strong> paradigm: it follows a single branch until it either hits a dead-end or discovers the goal. Once the goal is encountered, search terminates immediately.
+1. <strong>Lack of Cost Consideration:</strong> DFS does not evaluate edge weights or accumulated path costs. It returns the <em>first discovered path</em>, which depends entirely on arbitrary tie-breaking and successor ordering.
+2. <strong>Successor Ordering Impact:</strong> When configured with the Goal-ward heuristic, DFS rapidly plunges toward the top-right, incurring high positive move costs ($+3, +2$), yielding a path cost of $75$. Conversely, Reverse order prioritizes Up-Left ($-3$) and Down ($-1$), wandering through $78$ moves but driving the net cost down to $34$.
+3. <strong>No Backtracking for Optimality:</strong> Without exhaustive exploration of all paths (which would require exponential time $O(b^d)$) or branch-and-bound pruning, DFS cannot guarantee optimality in any weighted environment.
+<hr/>
+<h2>2. Question 2: Intelligent Robot Navigation using Prim’s and Kruskal’s Algorithms</h2>
+<h3>2.1 MST Problem Formulation & Graph Construction</h3>
+<p>To compute Minimum Spanning Trees (MST), the directional, asymmetric navigation graph is transformed into an <strong>undirected, weighted graph</strong> under the following rules:<br/>* <strong>Vertices ($V$):</strong> Every non-permanent cell represents a vertex. All blue obstacles ($B, B+, B-$) are treated as accessible free cells. Permanent orange obstacles ($O$) are excluded.<br/>  $$|V| = 225 - 82 = 143 \text{ vertices}$$<br/>* <strong>Edges ($E$):</strong> An undirected edge connects two cells if they are adjacent under at least one permitted movement direction, ignoring direction. Because horizontal ($R, L$), vertical ($U, D$), and diagonal ($UR, UL$) directions are permitted, every non-wall cell connects to its horizontal, vertical, and both diagonal neighbors.<br/>* <strong>Weights:</strong><br/>  * Horizontal connections: $w = 1.0$<br/>  * Vertical connections: $w = 1.0$<br/>  * Diagonal connections: $w = \sqrt{2} \approx 1.414214$<br/>* Total candidate edges considered: <strong>343 undirected edges</strong> (96 Horizontal, 102 Vertical, 145 Diagonal).</p>
+<hr/>
+<h3>2.2 Task 1: Prim’s Algorithm</h3>
+<p>Prim’s algorithm builds the MST by greedily attaching the minimum-weight edge connecting a vertex in the growing tree to a vertex outside the tree, utilizing our custom binary <code>MinHeap</code>.</p>
+<pre><code>--------------------------------------------------------------------------------
+ALGORITHM 2: Prim's MST with Minimum Spanning Forest Handling
+--------------------------------------------------------------------------------
+Input : Graph G = (V, E) with adjacency lists, |V| = n
+Output: Selected edges forming MST or Minimum Spanning Forest (MSF)
+1: in_tree &lt;- array of False of size n; chosen_edges &lt;- empty list; components &lt;- empty list
+2: for root = 0 to n - 1 do
+3:     if in_tree[root] then continue
+4:     heap &lt;- MinHeap(); in_tree[root] &lt;- True; comp_size &lt;- 1
+5:     for each (v, w) in Adj[root] do heap.push(w, (root, v))
+6:     while heap is not empty do
+7:         w, (u, v) &lt;- heap.pop_min()
+8:         if in_tree[v] then continue
+9:         in_tree[v] &lt;- True; comp_size &lt;- comp_size + 1
+10:        chosen_edges.append((w, u, v))
+11:        for each (x, wx) in Adj[v] do
+12:            if not in_tree[x] then heap.push(wx, (v, x))
+13:    components.append((root, comp_size))
+14: return chosen_edges, components
+--------------------------------------------------------------------------------</code></pre>
+<p>#### Prim’s Empirical Results<br/>* <strong>Vertices Included:</strong> 143<br/>* <strong>Edges Selected:</strong> Exactly $142$ edges ($|V| - 1 = 143 - 1 = 142$)<br/>* <strong>Total MST Weight:</strong> <strong>142.000000</strong><br/>* <strong>Edge Breakdown:</strong><br/>  * Horizontal edges ($w = 1.0$): <strong>74</strong><br/>  * Vertical edges ($w = 1.0$): <strong>68</strong><br/>  * Diagonal edges ($w = \sqrt{2}$): <strong>0</strong><br/>* <strong>Connected Component Determination:</strong><br/>  * <strong>Result:</strong> Exactly <strong>1 connected component</strong> containing all $143$ vertices.<br/>  * The graph is <strong>fully connected</strong>; the algorithm produces a single MST without needing a disconnected forest.</p>
+<hr/>
+<h3>2.3 Task 2: Kruskal’s Algorithm</h3>
+<p>Kruskal’s algorithm sorts all $343$ edges in ascending order using custom stable <code>merge_sort</code> and repeatedly incorporates edges that connect distinct components using a Disjoint-Set Union (<code>DSU</code>) data structure with path compression and union by rank.</p>
+<pre><code>--------------------------------------------------------------------------------
+ALGORITHM 3: Kruskal's MST (Merge Sort + DSU)
+--------------------------------------------------------------------------------
+Input : Graph G = (V, E), edge list
+Output: Selected MST edges, final forest components
+1: sorted_edges &lt;- merge_sort(E, key = weight)
+2: dsu &lt;- DSU(n = |V|)
+3: chosen_edges &lt;- empty list
+4: for each (w, u, v) in sorted_edges do
+5:     if dsu.union(u, v) == True then       # True iff u and v were in different sets
+6:         chosen_edges.append((w, u, v))
+7:         if len(chosen_edges) == |V| - 1 then break
+8: return chosen_edges, dsu.components
+--------------------------------------------------------------------------------</code></pre>
+<p>#### Kruskal’s Empirical Results<br/>* <strong>Total Edges Processed:</strong> 343 edges (198 edges with weight $1.0$, 145 edges with weight $\sqrt{2}$).<br/>* <strong>Edges Selected:</strong> Exactly $142$ edges.<br/>* <strong>Total MST Weight:</strong> <strong>142.000000</strong><br/>* <strong>Edge Breakdown:</strong><br/>  * Horizontal edges ($w = 1.0$): <strong>40</strong><br/>  * Vertical edges ($w = 1.0$): <strong>102</strong><br/>  * Diagonal edges ($w = \sqrt{2}$): <strong>0</strong><br/>* <strong>Final Components:</strong> 1 (Single MST).</p>
+<hr/>
+<h3>2.4 Comparative Analysis: Prim vs. Kruskal</h3>
+<table><thead><tr><th>Comparison Metric</th><th>Prim’s Algorithm</th><th>Kruskal’s Algorithm</th><th>Match / Status</th></tr></thead><tbody><tr><td><strong>Total Edges Selected</strong></td><td>142</td><td>142</td><td><strong>Identical</strong> ($</td><td>V</td><td>-1$)</td></tr><tr><td><strong>Total Tree Weight</strong></td><td><strong>142.000000</strong></td><td><strong>142.000000</strong></td><td><strong>Identical</strong> ($\Delta = 0$)</td></tr><tr><td><strong>Edges of Weight 1.0</strong></td><td>142</td><td>142</td><td><strong>Identical</strong></td></tr><tr><td><strong>Edges of Weight $\sqrt{2}$</strong></td><td>0</td><td>0</td><td><strong>Identical</strong></td></tr><tr><td><strong>Connected Components</strong></td><td>1 (Single MST)</td><td>1 (Single MST)</td><td><strong>Identical</strong></td></tr><tr><td><strong>Common Edges Shared</strong></td><td>103 of 142</td><td>103 of 142</td><td>72.5% overlap</td></tr><tr><td><strong>Differing Edges</strong></td><td>39</td><td>39</td><td>Valid alternative MSTs</td></tr></tbody></table>
+#### Discussion on Differing Edges
+While both algorithms produce the <strong>exact same optimal weight (142.000000)</strong>, the individual edges selected differ on $39$ edges.
+<p><em>Theoretical Justification:</em> An MST is <strong>unique if and only if all edge weights in the graph are distinct</strong>. In this grid, there are 198 horizontal/vertical edges that all tie at weight $1.0$. <br/>* Prim grows a single local tree outward from vertex $(1,1)$, breaking ties based on neighbor adjacency discovery order.<br/>* Kruskal sorts all edges globally via <code>merge_sort</code> and processes them in coordinate index order across the entire grid.</p>
+<p>Both edge sets form valid, spanning, cycle-free trees of minimal weight, providing empirical confirmation of the Cut and Cycle properties of MSTs.</p>
+<hr/>
+<h2>3. Question 3: Time & Space Complexity Analysis</h2>
+<p>Let $V$ denote the number of accessible vertices ($|V| = 143$) and $E$ the number of edges.</p>
+<h3>3.1 BFS Complexity Analysis [5 Marks]</h3>
+<p>BFS visits each vertex once and traverses each outgoing edge once.</p>
+<table><thead><tr><th>Representation</th><th>Time Complexity</th><th>Space Complexity</th><th>Analytical Justification</th></tr></thead><tbody><tr><td><strong>Adjacency Matrix</strong></td><td>$\mathcal{O}(V^2)$</td><td>$\mathcal{O}(V^2)$</td><td><strong>Time:</strong> To find neighbors of vertex $u$, BFS must scan row $u$ of length $V$. For $V$ vertices: $V \times \mathcal{O}(V) = \mathcal{O}(V^2)$.<br><strong>Space:</strong> Dominated by the $V \times V$ matrix $\mathcal{O}(V^2)$; queue and visited sets require $\mathcal{O}(V)$.</td></tr><tr><td><strong>Adjacency List</strong></td><td>$\mathcal{O}(V + E)$</td><td>$\mathcal{O}(V + E)$</td><td><strong>Time:</strong> Vertex dequeued once $\mathcal{O}(V)$; each outgoing edge inspected once across all lists $\mathcal{O}(E)$. For sparse grids ($E \le 6V$), $\mathcal{O}(V+E) = \mathcal{O}(V)$.<br><strong>Space:</strong> Lists store $V$ headers and $2E$ nodes $\mathcal{O}(V+E)$.</td></tr></tbody></table>
+---
+<h3>3.2 DFS Complexity Analysis [5 Marks]</h3>
+<p>Both Iterative (Stack) and Recursive DFS exhibit identical asymptotic bounds:</p>
+<table><thead><tr><th>Representation</th><th>Time (Iterative)</th><th>Time (Recursive)</th><th>Space (Iterative)</th><th>Space (Recursive)</th></tr></thead><tbody><tr><td><strong>Adjacency Matrix</strong></td><td>$\mathcal{O}(V^2)$</td><td>$\mathcal{O}(V^2)$</td><td>$\mathcal{O}(V^2)$</td><td>$\mathcal{O}(V^2)$</td></tr><tr><td><strong>Adjacency List</strong></td><td>$\mathcal{O}(V + E)$</td><td>$\mathcal{O}(V + E)$</td><td>$\mathcal{O}(V + E)$</td><td>$\mathcal{O}(V + E)$</td></tr></tbody></table>
+#### Justification
+* <strong>Adjacency Matrix:</strong> Finding unvisited neighbors requires scanning an entire row of length $V$ for each vertex $\rightarrow \mathcal{O}(V^2)$ time. Space is $\mathcal{O}(V^2)$ for the matrix storage.
+* <strong>Adjacency List:</strong> Every vertex and incident edge is explored once $\rightarrow \mathcal{O}(V + E)$ time. Space requires $\mathcal{O}(V + E)$ for adjacency storage.
+* <strong>Auxiliary Memory Difference:</strong>
+  * Iterative DFS uses an explicit heap-allocated <code>Stack</code> of maximum depth $V \rightarrow \mathcal{O}(V)$.
+  * Recursive DFS uses OS call-stack frames of maximum depth $V \rightarrow \mathcal{O}(V)$. In environments with limited stack sizes (e.g. Python default of 1,000 frames), deep recursion risks <code>RecursionError</code> unless execution is isolated in a thread with expanded stack memory.
+<hr/>
+<h3>3.3 Shortest-Path Guarantee [5 Marks]</h3>
+<p><strong>Question:</strong> <em>Which of BFS and DFS guarantees a shortest path in the given robot navigation environment? Explain by considering movement and obstacle-related costs.</em></p>
+<p>#### Rigorous Answer: NEITHER BFS NOR DFS GUARANTEES A MINIMUM-COST PATH.</p>
+<p>1. <strong>Failure of BFS for Cost Minimization:</strong><br/>   * BFS guarantees the shortest path <strong>strictly in terms of the number of edges (unweighted hop count)</strong>.<br/>   * If edge weights are positive and uniform, fewest hops equals lowest cost.<br/>   * In this environment, costs are <strong>heterogeneous and asymmetric</strong> (ranging from $-3$ for Up-Left to $+3$ for Up-Right, plus $+5$ destruction and penalty fees).<br/>   * Most critically, the directed graph contains <strong>negative-cost cycles</strong>:<br/>     $$\text{Up-Left } (-3) + \text{Right } (+2) + \text{Down } (-1) = -2$$<br/>   * In a graph with negative cycles, a minimum-cost walk is <strong>unbounded below ($-\infty$)</strong> because traversing the loop repeatedly reduces total cost indefinitely. For simple paths (no repeated vertices), the problem is NP-hard. BFS does not evaluate edge weights and thus cannot minimize cost.</p>
+<p>2. <strong>Failure of DFS for Cost Minimization:</strong><br/>   * DFS commits to the first path leading to the goal along its search branch.<br/>   * As demonstrated in our experiments, changing successor ordering alters path cost from $34$ to $75$ on the identical grid. DFS provides zero optimality guarantees.</p>
+<p>3. <strong>Algorithm that WOULD Guarantee Shortest Path:</strong><br/>   * For non-negative weighted graphs: <strong>Dijkstra’s Algorithm</strong> with a priority queue in $\mathcal{O}((V + E) \log V)$.<br/>   * For general graphs with negative edges but NO negative cycles: <strong>Bellman-Ford Algorithm</strong> in $\mathcal{O}(V \cdot E)$.</p>
+<hr/>
+<h3>3.4 Minimum Spanning Tree Complexity Comparison [5 Marks]</h3>
+<table><thead><tr><th>Algorithm</th><th>Representation</th><th>Time Complexity</th><th>Space Complexity</th><th>Optimal Graph Type</th></tr></thead><tbody><tr><td><strong>Prim’s</strong></td><td>Adjacency Matrix</td><td>$\mathcal{O}(V^2)$</td><td>$\mathcal{O}(V^2)$</td><td>Dense graphs ($E \approx V^2$)</td></tr><tr><td><strong>Prim’s</strong></td><td>Adjacency List + Binary Heap</td><td>$\mathcal{O}((V + E) \log V)$</td><td>$\mathcal{O}(V + E)$</td><td>Sparse graphs ($E \ll V^2$)</td></tr><tr><td><strong>Kruskal’s</strong></td><td>Adjacency Matrix</td><td>$\mathcal{O}(V^2 \log V)$</td><td>$\mathcal{O}(V^2)$</td><td>Inefficient (must extract edges first)</td></tr><tr><td><strong>Kruskal’s</strong></td><td>Adjacency List + DSU</td><td>$\mathcal{O}(E \log E)$</td><td>$\mathcal{O}(V + E)$</td><td>Sparse graphs / Edge lists</td></tr></tbody></table>
+#### Comparative Discussion
+* On our planar grid, $E \le 4V$, making the graph <strong>sparse</strong>.
+* With adjacency lists, Kruskal’s time is $\mathcal{O}(E \log E) \approx \mathcal{O}(V \log V)$, and Prim’s time is $\mathcal{O}(E \log V) \approx \mathcal{O}(V \log V)$. Both run in practically identical, near-linear time.
+* Prim grows a localized tree and is simpler when vertices are known in advance. Kruskal processes independent edges globally and naturally constructs Minimum Spanning Forests for disconnected graphs without extra restart logic.
+<hr/>
+<h2>4. Question 4: Prim’s & Kruskal’s Theoretical Proofs</h2>
+<h3>4.1 Kruskal’s Algorithm Tie-Handling Proof [7 Marks]</h3>
+<p>#### Theorem<br/><em>Let $G = (V, E, w)$ be a connected, weighted, undirected graph, and let $T$ be an arbitrary Minimum Spanning Tree of $G$. Then there exists an ordering of the edges of $G$ such that Kruskal’s algorithm, when processing edges in this order, outputs exactly $T$.</em></p>
+<p>#### Formal Inductive Proof<br/>1. <strong>Partition by Weight:</strong><br/>   Let the distinct edge weights in $G$ be $w_1 < w_2 < \dots < w_k$.<br/>   Partition the entire edge set $E$ into equivalence classes by weight:<br/>   $$E_i = \{e \in E \mid w(e) = w_i\}$$<br/>   Similarly, let $T_i = T \cap E_i$ be the set of edges in $T$ having weight $w_i$.</p>
+<p>2. <strong>Construction of Ordering $\sigma$:</strong><br/>   Construct a total ordering $\sigma$ of $E$ adhering to non-decreasing weights:<br/>   * For each weight class $E_i$, arrange the edges such that all edges belonging to $T_i$ appear <strong>strictly before</strong> all edges in $E_i \setminus T_i$.<br/>   * Concatenate these ordered classes:<br/>     $$\sigma = \big( \text{edges in } T_1, \; E_1 \setminus T_1, \; \text{edges in } T_2, \; E_2 \setminus T_2, \; \dots, \; \text{edges in } T_k, \; E_k \setminus T_k \big)$$</p>
+<p>3. <strong>Inductive Hypothesis:</strong><br/>   <em>Claim:</em> After Kruskal’s algorithm finishes processing all edges of weight $\le w_i$, the set of edges accepted by Kruskal is exactly:<br/>   $$\bigcup_{j=1}^i T_j$$</p>
+<p>4. <strong>Base Case ($i = 0$):</strong><br/>   Before processing any edges, Kruskal’s accepted edge set is $\emptyset$, matching the base set.</p>
+<p>5. <strong>Inductive Step:</strong><br/>   Assume the claim holds for weight class $w_{i-1}$. That is, the current forest maintained by the Disjoint-Set Union (DSU) structure consists exactly of the edges $T_1 \cup \dots \cup T_{i-1}$.<br/>   Now Kruskal processes edges of weight $w_i$:<br/>   <br/>   * <strong>Phase A (Edges in $T_i$):</strong><br/>     Let $e = (u, v) \in T_i$. <br/>     Suppose for contradiction that $u$ and $v$ are already in the same connected component of the DSU. That would imply there exists a path between $u$ and $v$ using only edges from $T_1 \cup \dots \cup T_{i-1} \subseteq T$. But adding $e \in T$ would form a cycle in $T$, violating the fact that $T$ is a tree.<br/>     Therefore, $u$ and $v$ must belong to distinct components:<br/>     $$\text{DSU.find}(u) \neq \text{DSU.find}(v)$$<br/>     Hence, Kruskal <strong>must accept</strong> every edge $e \in T_i$.</p>
+<p>* <strong>Phase B (Edges in $E_i \setminus T_i$):</strong><br/>     Let $e' = (x, y) \in E_i \setminus T_i$.<br/>     Since $T$ is a spanning tree, adding $e'$ to $T$ produces a unique fundamental cycle $C$.<br/>     Because $T$ is an MST, no edge on $C$ can have a weight strictly greater than $w(e') = w_i$ (by the Cycle Property of MSTs).<br/>     Thus, all edges on cycle $C$ belong to $T$ and have weight $\le w_i$.<br/>     All such edges ($T_1 \cup \dots \cup T_i$) have already been accepted by Kruskal in earlier steps and Phase A.<br/>     Consequently, $x$ and $y$ are already connected in the DSU forest.<br/>     Therefore, Kruskal <strong>must reject</strong> every edge $e' \in E_i \setminus T_i$.</p>
+<p>6. <strong>Conclusion:</strong><br/>   By mathematical induction, the invariant holds across all $k$ weight classes. The total set of edges accepted by Kruskal is:<br/>   $$\bigcup_{i=1}^k T_i = T$$<br/>   Thus, Kruskal’s algorithm outputs exactly $T$. $\blacksquare$</p>
+<hr/>
+<h3>4.2 Fast MST Algorithms with Bounded Integer Weights [8 Marks]</h3>
+<p>Standard comparison-based sorting incurs an $\Omega(E \log E)$ lower bound. However, when edge weights are bounded integers, non-comparison methods and specialized priority queues allow significant acceleration.</p>
+<p>#### (i) Prim’s Algorithm with Bounded Integer Weights</p>
+<p>##### Case 1: Weights are integers in $\{1, 2, \dots, |V|\}$<br/>* <strong>Data Structure:</strong> <strong>Dial’s Algorithm (Bucket Queue)</strong>.<br/>  We maintain an array of buckets numbered $0$ to $|V|$, where bucket $k$ contains a doubly-linked list of vertices whose current minimum cut edge weight is $k$.<br/>* <strong>Operations:</strong><br/>  * <code>decrease_key</code>: Moving a vertex to a smaller bucket index takes $\mathcal{O}(1)$ time.<br/>  * <code>extract_min</code>: Scanned sequentially. Since edge weights are bounded by $|V|$, the minimum pointer only advances monotonically forward, scanning at most $|V|$ empty buckets across the entire execution.<br/>* <strong>Running Time:</strong><br/>  $$\mathcal{O}(V + E + |V|) = \mathcal{O}(V + E)$$<br/><em> </em>Alternative:* Using a <strong>Van Emde Boas (vEB) tree</strong> yields $\mathcal{O}((V + E) \log \log V)$.</p>
+<p>##### Case 2: Weights are integers in $\{1, 2, \dots, W\}$ for constant $W$<br/>* Dial’s bucket queue contains only $W$ buckets.<br/>* Bucket pointer wrap-around occurs in $\mathcal{O}(W) = \mathcal{O}(1)$ time.<br/>* <strong>Running Time:</strong><br/>  $$\mathcal{O}(V + E + W) = \mathcal{O}(V + E)$$</p>
+<hr/>
+<p>#### (ii) Kruskal’s Algorithm with Bounded Integer Weights</p>
+<p>The asymptotic bottleneck in Kruskal’s algorithm is sorting the edges.</p>
+<p>##### Case 1: Weights are integers in $\{1, 2, \dots, |V|\}$<br/>* <strong>Edge Sorting:</strong> Instead of comparison sort, use <strong>Counting Sort</strong>.<br/>  With $|V|$ buckets and $E$ edges, Counting Sort runs in:<br/>  $$\mathcal{O}(E + |V|) \text{ time and } \mathcal{O}(E + |V|) \text{ space}$$<br/>* <strong>DSU Operations:</strong> Processing $E$ union-find operations with path compression and rank takes:<br/>  $$\mathcal{O}(E \cdot \alpha(V)) \text{ time}$$<br/>* <strong>Total Running Time:</strong><br/>  $$\mathcal{O}(E + V + E \cdot \alpha(V)) = \mathcal{O}(E \cdot \alpha(V) + V) \approx \mathcal{O}(V + E)$$<br/>  <em>(Since $\alpha(V) \le 4$ for all practical input sizes, this is essentially linear time).</em></p>
+<p>##### Case 2: Weights are integers in $\{1, 2, \dots, W\}$ for constant $W$<br/>* Counting Sort requires $W$ counters:<br/>  $$\mathcal{O}(E + W) = \mathcal{O}(E) \text{ time}$$<br/>* <strong>Total Running Time:</strong><br/>  $$\mathcal{O}(E \cdot \alpha(V)) \approx \mathcal{O}(E)$$<br/>  This matches the theoretical lower bound, as inspecting every edge requires $\Omega(E)$ time.</p>
+<hr/>
+<h2>5. System Architecture & Custom Data Structures</h2>
+<p>Course guidelines strictly prohibit built-in algorithmic libraries. All data structures were designed from first principles in [data_structures.py](file:///d:/Documents/Algo_complete%20material/Assignment-5/DAA_A4_RollNo_FirstName/data_structures.py):</p>
+<pre><code>+-------------------------------------------------------------------------------+
+|                        CUSTOM DATA STRUCTURES ARCHITECTURE                    |
++-------------------------------------------------------------------------------+
+|  Module               Class / Function   Underlying Design     Complexity     |
+|---------------------+------------------+---------------------+----------------|
+| data_structures.py  | Queue            | Array + Head Pointer| O(1) ops       |
+| data_structures.py  | Stack            | Dynamic Array LIFO  | O(1) push/pop  |
+| data_structures.py  | MinHeap          | Binary Heap Array   | O(log n)       |
+| data_structures.py  | merge_sort       | Stable Merge Sort   | O(n log n)     |
+| data_structures.py  | DSU              | Rank + Compression  | O(alpha(n))    |
++-------------------------------------------------------------------------------+</code></pre>
+<p>1. <strong><code>Queue</code>:</strong> Implemented with an array and a moving head index (<code>_head</code>). Dequeue advances the index in $\mathcal{O}(1)$ time without $\mathcal{O}(n)$ list-shifting penalties.<br/>2. <strong><code>Stack</code>:</strong> Implemented with dynamic list append and pop in $\mathcal{O}(1)$ time.<br/>3. <strong><code>MinHeap</code>:</strong> Binary min-heap storing <code>(key, payload)</code> pairs with standard bubble-up and bubble-down routines for Prim's priority queue.<br/>4. <strong><code>merge_sort</code>:</strong> Stable divide-and-conquer sorting algorithm ensuring predictable tie-handling for Kruskal's edge ordering.<br/>5. <strong><code>DSU</code>:</strong> Disjoint-Set Union with path compression (<code>parent[x] = find(parent[x])</code>) and union by rank, reducing amortized operation time to inverse Ackermann $\mathcal{O}(\alpha(n))$.</p>
+<hr/>
+<h2>6. Discussion, Comments, and Conclusion</h2>
+<h3>6.1 Critical Observations & Comments</h3>
+* <strong>The Interplay of Energy and Graph Traversal:</strong> In standard grid pathfinding, visiting the same $(x, y)$ coordinate multiple times indicates a cycle. However, in this problem, revisiting an $(x, y)$ cell with a different destroyed bitmask is often necessary to backtrack, collect bonuses, or circumvent walls.
+* <strong>Negative-Cost Cycles in Navigation:</strong> The presence of $UL(-3) + R(+2) + D(-1) = -2$ demonstrates why shortest-path problems with negative cycles are unbounded unless constrained to simple paths.
+* <strong>Tie-Breaking in MST:</strong> Both Prim’s and Kruskal’s algorithms found identical MST weights ($142.000$) but differed in edge choices ($103$ shared out of $142$). This empirical result provides practical validation for the cycle-cut theorem and theoretical proof derived in Question 4(a).
+<h3>6.2 Conclusion</h3>
+All requirements of Assignment 4 have been successfully satisfied:
+1. <strong>Graph Modelling:</strong> The grid is fully formulated as a dynamic, directed state-space graph with complete state tuples $(x, y, \text{energy}, \text{mask})$.
+2. <strong>Search Algorithms:</strong> BFS and both DFS variants (iterative stack and recursive) were implemented, producing concrete paths, traversal sequences, and energy calculations.
+3. <strong>MST Computation:</strong> Both Prim's and Kruskal's algorithms were implemented from first principles, successfully identifying a single connected MST of weight $142.000000$.
+4. <strong>Complexity & Theory:</strong> Comprehensive complexity comparisons across adjacency matrix and list models, along with formal mathematical proofs for Kruskal tie-handling and linear-time bounded MST algorithms, were derived and documented.
+5. <strong>Interactive Visualization:</strong> An interactive web frontend was developed to visually animate and verify the results on screen.
+<hr/>
+</body>
+</html>
