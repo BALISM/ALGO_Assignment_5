@@ -1,0 +1,303 @@
+Q3 : TIME AND SPACE COMPLEXITY ANALYSIS
+CS2009 Design and Analysis of Algorithms  -  Assignment 4
+
+Grid : 15 x 15 = 225 cells total.
+  Accessible vertices V = 143  (permanent orange cells excluded).
+  Each cell has at most 6 outgoing directed edges (R, L, U, D, UR, UL).
+  Total directed edges E <= 6V = 858 (upper bound).
+  Total undirected edges E <= 3V = 429 (upper bound, ignoring direction).
+
+NOTE ON STATE SPACE
+  The full BFS/DFS state is (x, y, energy, destroyed_mask).  With 15 blue
+  cells the mask has 2^15 = 32,768 values, so the theoretical state-space
+  is V_state = V * 11 * 32768 (energy 0..10, mask 0..32767).
+  For complexity purposes we write V for the number of reachable states and
+  E for the number of edges in the corresponding state-space graph, because
+  Big-O notation absorbs the constant factors (11 * 32768).
+
+==============================================================================
+Q3.1  BFS COMPLEXITY
+==============================================================================
+
+BFS visits every reachable state at most once and examines every
+outgoing edge of each visited state exactly once.
+
+------------------------------------------------------------
+Representation 1 : Adjacency MATRIX
+------------------------------------------------------------
+
+  Graph stored as a V x V Boolean matrix M where M[u][v] = 1
+  if there is an edge from u to v.
+
+  Time Complexity
+  ---------------
+  For each dequeued state u (at most V states), BFS scans the entire
+  row u of the matrix to find neighbours: O(V) per state.
+
+      T_BFS_matrix = O(V) states x O(V) per row scan
+                   = O(V^2)
+
+  For the navigation grid  V = 143  =>  V^2 = 20449.
+
+  Space Complexity
+  ----------------
+  Matrix storage              : O(V^2)
+  BFS queue (at most V nodes) : O(V)
+  Visited set                 : O(V)
+  Parent / path table         : O(V)
+
+      S_BFS_matrix = O(V^2)   (dominated by matrix storage)
+
+------------------------------------------------------------
+Representation 2 : Adjacency LIST
+------------------------------------------------------------
+
+  Each vertex u stores only its actual neighbours, so the total
+  storage for all adjacency lists is Theta(V + E).
+
+  Time Complexity
+  ---------------
+  Each vertex is dequeued once; each edge is examined once when
+  the adjacency list of its source vertex is scanned.
+
+      T_BFS_list = O(V + E)
+
+  For the navigation grid  E <= 6V = 858  =>  V + E <= 7V = 1001.
+
+  Space Complexity
+  ----------------
+  Adjacency lists : O(V + E)
+  Queue           : O(V)
+  Visited / parent: O(V)
+
+      S_BFS_list = O(V + E)
+
+Summary BFS
+  +------------------+-------------------+-------------------+
+  | Representation   | Time              | Space             |
+  +------------------+-------------------+-------------------+
+  | Adjacency Matrix | O(V^2)            | O(V^2)            |
+  | Adjacency List   | O(V + E)          | O(V + E)          |
+  +------------------+-------------------+-------------------+
+==============================================================================
+Q3.2  DFS COMPLEXITY
+==============================================================================
+
+Two DFS variants are implemented: iterative (stack-based) and recursive.
+Both visit each reachable state at most once and examine each edge once,
+so their asymptotic complexities are identical to each other.
+
+------------------------------------------------------------
+Representation 1 : Adjacency MATRIX  (both iterative and recursive)
+------------------------------------------------------------
+
+  Time Complexity
+  ---------------
+  For each of V states, the algorithm scans a full row of the matrix
+  to discover neighbours.
+
+      T_DFS_matrix = O(V^2)
+
+  Space Complexity - Iterative (stack-based)
+  ------------------------------------------
+  Matrix storage                : O(V^2)
+  Explicit stack (at most V)    : O(V)
+  Visited set                   : O(V)
+
+      S_DFS_iterative_matrix = O(V^2)
+
+  Space Complexity - Recursive
+  ----------------------------
+  Matrix storage                     : O(V^2)
+  Call stack depth (at most V frames) : O(V)
+  Visited set                        : O(V)
+
+      S_DFS_recursive_matrix = O(V^2)
+
+  NOTE: recursive DFS on a large state space risks a Python stack overflow;
+  the implementation in q1_robot_navigation.py uses a large-stack thread and
+  sys.setrecursionlimit(100000) to mitigate this.
+
+------------------------------------------------------------
+Representation 2 : Adjacency LIST  (both iterative and recursive)
+------------------------------------------------------------
+
+  Time Complexity
+  ---------------
+  Each vertex is processed once; each edge is examined once.
+
+      T_DFS_list = O(V + E)
+
+  Space Complexity - Iterative
+  ----------------------------
+  Adjacency lists : O(V + E)
+  Stack           : O(V)
+  Visited / parent: O(V)
+
+      S_DFS_iterative_list = O(V + E)
+
+  Space Complexity - Recursive
+  ----------------------------
+  Adjacency lists        : O(V + E)
+  Call-stack depth       : O(V)  (worst-case path length = V)
+  Visited / parent       : O(V)
+
+      S_DFS_recursive_list = O(V + E)
+
+Summary DFS
+  +------------------+-------------------+-------------------+-------------------+
+  | Representation   | Time              | Space (Iterative) | Space (Recursive) |
+  +------------------+-------------------+-------------------+-------------------+
+  | Adjacency Matrix | O(V^2)            | O(V^2)            | O(V^2)            |
+  | Adjacency List   | O(V + E)          | O(V + E)          | O(V + E)          |
+  +------------------+-------------------+-------------------+-------------------+
+==============================================================================
+Q3.3  SHORTEST-PATH GUARANTEE
+==============================================================================
+
+Question: Which of BFS and DFS guarantees a shortest path in this
+navigation environment?
+
+SHORT ANSWER:  NEITHER algorithm guarantees a minimum-cost path here.
+
+Detailed Explanation
+--------------------
+
+1. BFS and uniform costs
+   BFS guarantees the FEWEST-HOPS path (minimum number of moves) in an
+   UNWEIGHTED graph, or equivalently a minimum-cost path when ALL edge
+   weights are EQUAL AND POSITIVE.
+
+   In this problem the move costs are NOT uniform:
+     Right       : +2
+     Up          : +2
+     Up-Right    : +3
+     Left        : -1  (NEGATIVE)
+     Down        : -1  (NEGATIVE)
+     Up-Left     : -3  (NEGATIVE)
+   plus destruction cost +5 and optional penalty +5 or bonus +3 energy.
+
+   Because some costs are negative, the graph contains NEGATIVE-COST CYCLES
+   (e.g., Up-Left (-3) + Right (+2) + Down (-1) = net -2 around a 3-cell
+   loop).  This means the minimum-cost WALK is unbounded below (by
+   repeatedly traversing the negative-cost cycle the total cost can be
+   driven to -infinity).  Therefore the concept of 'minimum-cost path'
+   is undefined (or trivially -inf) for the WALK model without a visited-
+   state constraint.
+
+   BFS finds the shortest path in terms of NUMBER OF MOVES (hops), not
+   minimum cost.  The BFS path in the output has only 15 moves, but its
+   cost (51) is higher than the DFS Reverse-ordering cost (34) which uses
+   78 moves -- demonstrating that fewer hops != lower cost here.
+
+2. DFS and optimality
+   DFS explores states in a depth-first order that depends entirely on
+   the successor ordering (the order in which neighbours are generated).
+   It returns the FIRST path it finds to the goal, with no guarantee about
+   path cost or length.  As shown in the successor-ordering experiment:
+     Default  R,L,U,D,UR,UL  : cost 68  (40 moves)
+     Goal-ward UR,U,R,UL,L,D : cost 75  (42 moves)
+     Reverse  UL,UR,D,U,L,R  : cost 34  (78 moves)
+   The same graph yields costs differing by a factor of >2 depending on
+   successor order, confirming DFS has NO optimality guarantee.
+
+3. What algorithm WOULD guarantee a minimum-cost path?
+   * If all edge weights were NON-NEGATIVE: Dijkstra's algorithm (priority-
+     queue BFS) guarantees minimum cost in O((V + E) log V).
+   * With NEGATIVE weights but NO negative cycles: Bellman-Ford in O(VE).
+   * With negative cycles: the problem is ill-posed (unbounded); a path
+     cost can always be reduced further.  A SIMPLE-PATH (no repeated
+     vertex) variant could be solved with dynamic programming or ILP, but
+     is NP-hard in general.
+
+Conclusion
+----------
+  BFS guarantees minimum MOVES (hops) but NOT minimum cost.
+  DFS guarantees NEITHER minimum moves NOR minimum cost.
+  Neither is an optimal algorithm for cost minimisation in this environment.
+==============================================================================
+Q3.4  PRIM'S vs KRUSKAL'S ALGORITHM COMPLEXITY
+==============================================================================
+
+For the MST problem V = 143 accessible cells, E <= 429 edges (undirected).
+
+------------------------------------------------------------
+Prim's Algorithm
+------------------------------------------------------------
+
+Implementation used: binary min-heap (MinHeap class in data_structures.py).
+
+Representation 1 : Adjacency MATRIX
+
+  The classic Prim with adjacency matrix uses a simple linear scan to find
+  the minimum-weight crossing edge at each step.
+
+  Time: V iterations x O(V) scan per iteration = O(V^2)
+  Space: O(V^2) for the matrix + O(V) for key/parent arrays = O(V^2)
+
+Representation 2 : Adjacency LIST + Binary Min-Heap (implemented)
+
+  Each vertex is inserted into the heap at most once per incident edge;
+  each edge triggers at most one heap push (O(log V)) and one heap pop
+  (O(log V)).
+
+  Time:  O((V + E) log V)   (heap push/pop for each edge)
+         = O(E log V)  since E >= V-1 for a connected graph
+  Space: O(V + E) for adjacency lists + O(V) for the heap = O(V + E)
+
+  For our grid: V=143, E<=429 => O(E log V) = O(429 * 7.2) ~ O(3088).
+
+  With a Fibonacci heap the time improves to O(E + V log V).
+
+------------------------------------------------------------
+Kruskal's Algorithm
+------------------------------------------------------------
+
+Implementation used: merge_sort + DSU (data_structures.py).
+
+  The bottleneck is SORTING all E edges.
+
+Representation 1 : Adjacency MATRIX
+
+  First all edges must be extracted from the matrix: O(V^2).
+  Then sorted: O(E log E) = O(V^2 log V) in the worst case.
+  DSU operations: near-linear O(E * alpha(V)) ~ O(E).
+
+  Time:  O(V^2 log V)  (edge extraction + sort dominate)
+  Space: O(V^2) matrix + O(E) edge list + O(V) DSU = O(V^2)
+
+Representation 2 : Adjacency LIST
+
+  Edges are enumerated directly in O(V + E).
+  Sort: O(E log E).
+  DSU : O(E * alpha(V))  (alpha = inverse Ackermann, essentially O(1)).
+
+  Time:  O(E log E)  =  O(E log V)  (since E <= V^2 so log E <= 2 log V)
+  Space: O(V + E) adjacency lists + O(E) sorted edge array + O(V) DSU
+       = O(V + E)
+
+  For our grid: E<=429 => O(E log E) ~ O(429 * 8.7) ~ O(3733).
+
+Summary Prim vs Kruskal
+  +------------+--------------------+--------------------+--------------------+--------------------+
+  | Algorithm  | Time (Matrix)      | Space (Matrix)     | Time (List)        | Space (List)       |
+  +------------+--------------------+--------------------+--------------------+--------------------+
+  | Prim       | O(V^2)             | O(V^2)             | O((V+E) log V)     | O(V + E)           |
+  | Kruskal    | O(V^2 log V)       | O(V^2)             | O(E log E)         | O(V + E)           |
+  +------------+--------------------+--------------------+--------------------+--------------------+
+
+Practical Comparison for the Navigation Grid
+--------------------------------------------
+  V = 143, E (undirected) <= 429.
+
+  Dense graphs (E ~ V^2):  Prim (adj. matrix) O(V^2) is better than
+  Kruskal O(V^2 log V) because sorting dominates.
+
+  Sparse graphs (E ~ V, like our grid):  Kruskal O(E log E) ~ O(V log V)
+  and Prim O(E log V) ~ O(V log V) are essentially equivalent; both
+  outperform the matrix-based versions.
+
+  Key distinction: Prim grows one tree greedily and is naturally suited to
+  dense adjacency-matrix representations.  Kruskal sorts all edges globally
+  and uses DSU -- it is simpler to implement for sparse edge lists and
+  handles disconnected graphs (spanning FOREST) with no extra logic.
