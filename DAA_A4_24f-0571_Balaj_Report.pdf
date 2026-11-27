@@ -1,0 +1,996 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R 27 0 R 29 0 R 31 0 R 33 0 R] /Count 15 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 3820 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (# National University of Computer & Emerging Sciences \(FAST-NUCES\)) Tj
+1 0 0 1 50 777.89 Tm (### Chiniot-Faisalabad Campus  Department of Computer Science) Tj
+1 0 0 1 50 763.89 Tm (### CS2009: Design and Analysis of Algorithms  Fall 2026) Tj
+1 0 0 1 50 749.89 Tm (---) Tj
+1 0 0 1 50 735.89 Tm (# ASSIGNMENT NO. 4 REPORT) Tj
+1 0 0 1 50 721.89 Tm (## Intelligent Robot Navigation & Minimum Spanning Trees) Tj
+1 0 0 1 50 707.89 Tm () Tj
+1 0 0 1 50 693.89 Tm (**Student Name:** Balaj  ) Tj
+1 0 0 1 50 679.89 Tm (**Roll Number:** 24f-0571  ) Tj
+1 0 0 1 50 665.89 Tm (**Instructor:** Dr. Hashim Yasin  ) Tj
+1 0 0 1 50 651.89 Tm (**Submission Date:** 27 November 2026  ) Tj
+1 0 0 1 50 637.89 Tm (**Repository / Folder Name:** `DAA_A4_24f-0571_Balaj`  ) Tj
+1 0 0 1 50 623.89 Tm () Tj
+1 0 0 1 50 609.89 Tm (---) Tj
+1 0 0 1 50 595.89 Tm () Tj
+1 0 0 1 50 581.89 Tm (## Executive Summary) Tj
+1 0 0 1 50 567.89 Tm () Tj
+1 0 0 1 50 553.89 Tm (This report documents the complete design, algorithmic formulation, implementation,) Tj
+1 0 0 1 50 539.89 Tm (empirical evaluation, and theoretical analysis for **Assignment 4: Intelligent Robot) Tj
+1 0 0 1 50 525.89 Tm (Navigation and Minimum Spanning Trees \(MST\)**.) Tj
+1 0 0 1 50 511.89 Tm () Tj
+1 0 0 1 50 497.89 Tm (The assignment addresses two central algorithmic challenges on a $15 \\times 15$ grid) Tj
+1 0 0 1 50 483.89 Tm (environment:) Tj
+1 0 0 1 50 469.89 Tm (1. **Intelligent State-Space Search \(BFS and DFS\):** Guiding an energy-constrained) Tj
+1 0 0 1 50 455.89 Tm (robot from Start $\(7, 1\)$ to Goal $\(15, 14\)$ across permanent obstacles and) Tj
+1 0 0 1 50 441.89 Tm (destructible blue obstacles \($B, B+, B-$\) with asymmetric movement costs, energy) Tj
+1 0 0 1 50 427.89 Tm (depletion, bonus gains, and negative edge weights.) Tj
+1 0 0 1 50 413.89 Tm (2. **Minimum Spanning Tree Computation \(Prims and Kruskals\):** Transforming the) Tj
+1 0 0 1 50 399.89 Tm (grid into an undirected weighted graph to compute the optimal spanning tree) Tj
+1 0 0 1 50 385.89 Tm (connecting all accessible cells with zero cycles at minimal geometric weight.) Tj
+1 0 0 1 50 371.89 Tm (3. **Comprehensive Complexity and Theoretical Proofs:** Formal asymptotic analysis of) Tj
+1 0 0 1 50 357.89 Tm (representations \(adjacency matrix vs. adjacency list\) and proofs regarding Kruskal) Tj
+1 0 0 1 50 343.89 Tm (tie-handling and linear-time MST construction with bounded integer weights.) Tj
+1 0 0 1 50 329.89 Tm () Tj
+1 0 0 1 50 315.89 Tm (In strict adherence to course guidelines, **no built-in or library data structures**) Tj
+1 0 0 1 50 301.89 Tm (\(such as Python's `heapq`, `collections.deque`, `queue`, or `sorted\(\)`\) were used.) Tj
+1 0 0 1 50 287.89 Tm (All data structuresincluding a FIFO Queue, LIFO Stack, Binary Min-Heap, Disjoint-Set) Tj
+1 0 0 1 50 273.89 Tm (Union \(DSU with union by rank and path compression\), and Merge Sortwere built) Tj
+1 0 0 1 50 259.89 Tm (entirely from scratch.) Tj
+1 0 0 1 50 245.89 Tm () Tj
+1 0 0 1 50 231.89 Tm (---) Tj
+1 0 0 1 50 217.89 Tm () Tj
+1 0 0 1 50 203.89 Tm (## 1. Question 1: Intelligent Robot Navigation using BFS & DFS) Tj
+1 0 0 1 50 189.89 Tm () Tj
+1 0 0 1 50 175.89 Tm (### 1.1 Problem Formulation & Environment Overview) Tj
+1 0 0 1 50 161.89 Tm () Tj
+1 0 0 1 50 147.89 Tm (The navigation environment is defined on a $15 \\times 15$ grid with coordinate) Tj
+1 0 0 1 50 133.89 Tm (convention $\(1, 1\)$ at the bottom-left and $\(15, 15\)$ at the top-right. The robot) Tj
+1 0 0 1 50 119.88999999999999 Tm (begins at $\(7, 1\)$ with $10$ initial energy units and must navigate to $\(15, 14\)$.) Tj
+1 0 0 1 50 105.88999999999999 Tm () Tj
+1 0 0 1 50 91.88999999999999 Tm (```) Tj
+1 0 0 1 50 77.88999999999999 Tm (Coordinates: \(1,1\) = Bottom-Left, \(15,15\) = Top-Right) Tj
+ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 4 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+6 0 obj
+<< /Length 3860 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (Start Position : \(7, 1\)   [Free cell]) Tj
+1 0 0 1 50 777.89 Tm (Goal Position  : \(15, 14\)  [Free cell]) Tj
+1 0 0 1 50 763.89 Tm (Grid Dimensions: 15 rows x 15 columns = 225 total cells) Tj
+1 0 0 1 50 749.89 Tm (Total Walls    : 82 permanent orange obstacle cells \(O\)) Tj
+1 0 0 1 50 735.89 Tm (Accessible Cells: 143 cells \(free + blue destructibles\)) Tj
+1 0 0 1 50 721.89 Tm (Blue Obstacles : 15 cells \(Normal B: 5, Bonus B+: 5, Penalty B-: 5\)) Tj
+1 0 0 1 50 707.89 Tm (```) Tj
+1 0 0 1 50 693.89 Tm () Tj
+1 0 0 1 50 679.89 Tm (#### Movement Rules & Step Costs) Tj
+1 0 0 1 50 665.89 Tm (The robot can execute at most one step at a time from its current cell across six) Tj
+1 0 0 1 50 651.89 Tm (permitted directions:) Tj
+1 0 0 1 50 637.89 Tm (* **Right:** $\(+1, 0\)$ with cost $+2$) Tj
+1 0 0 1 50 623.89 Tm (* **Left:** $\(-1, 0\)$ with cost $-1$) Tj
+1 0 0 1 50 609.89 Tm (* **Up:** $\(0, +1\)$ with cost $+2$) Tj
+1 0 0 1 50 595.89 Tm (* **Down:** $\(0, -1\)$ with cost $-1$) Tj
+1 0 0 1 50 581.89 Tm (* **Diagonally Up-Right:** $\(+1, +1\)$ with cost $+3$) Tj
+1 0 0 1 50 567.89 Tm (* **Diagonally Up-Left:** $\(-1, +1\)$ with cost $-3$) Tj
+1 0 0 1 50 553.89 Tm () Tj
+1 0 0 1 50 539.89 Tm (*Note:* Downward diagonal movements \(Down-Right and Down-Left\) are strictly) Tj
+1 0 0 1 50 525.89 Tm (disallowed.) Tj
+1 0 0 1 50 511.89 Tm () Tj
+1 0 0 1 50 497.89 Tm (#### Destructible Obstacle Rules & Energy Constraints) Tj
+1 0 0 1 50 483.89 Tm (1. Robot starts with $10$ energy units.) Tj
+1 0 0 1 50 469.89 Tm (2. The robot cannot step directly onto an intact blue cell; it must **destroy** the) Tj
+1 0 0 1 50 455.89 Tm (obstacle from an adjacent accessible cell prior to entry.) Tj
+1 0 0 1 50 441.89 Tm (3. Destroying any blue cell consumes **2 energy units** and incurs a **navigation) Tj
+1 0 0 1 50 427.89 Tm (cost of +5 units**.) Tj
+1 0 0 1 50 413.89 Tm (4. Once destroyed, a blue obstacle permanently becomes an ordinary free cell and) Tj
+1 0 0 1 50 399.89 Tm (remains accessible for all subsequent movements.) Tj
+1 0 0 1 50 385.89 Tm (5. **Bonus cells \($B+$\):** Entering a bonus cell awards $+3$ energy units upon first) Tj
+1 0 0 1 50 371.89 Tm (entry.) Tj
+1 0 0 1 50 357.89 Tm (6. **Penalty cells \($B-$\):** Entering a penalty cell incurs an additional navigation) Tj
+1 0 0 1 50 343.89 Tm (cost of $+5$ units upon first entry.) Tj
+1 0 0 1 50 329.89 Tm (7. Energy can never become negative; if remaining energy $< 2$, destruction cannot) Tj
+1 0 0 1 50 315.89 Tm (occur, rendering that intact blue cell impassable.) Tj
+1 0 0 1 50 301.89 Tm (8. Each bonus or penalty effect applies **exactly once** per cell.) Tj
+1 0 0 1 50 287.89 Tm () Tj
+1 0 0 1 50 273.89 Tm (---) Tj
+1 0 0 1 50 259.89 Tm () Tj
+1 0 0 1 50 245.89 Tm (### 1.2 Task 1: Graph Modelling and State Representation) Tj
+1 0 0 1 50 231.89 Tm () Tj
+1 0 0 1 50 217.89 Tm (#### 1. Graph Representation of the Grid) Tj
+1 0 0 1 50 203.89 Tm (The navigation grid cannot be modelled merely as a static 2D planar graph because the) Tj
+1 0 0 1 50 189.89 Tm (connectivity of the environment changes dynamically as obstacles are destroyed, and) Tj
+1 0 0 1 50 175.89 Tm (the legality of moves depends on available energy. We model the problem as a) Tj
+1 0 0 1 50 161.89 Tm (**Weighted Directed State-Space Graph** $\\mathcal{G} = \(\\mathcal{S}, \\mathcal{A},) Tj
+1 0 0 1 50 147.89 Tm (c\)$:) Tj
+1 0 0 1 50 133.89 Tm (* $\\mathcal{S}$: The set of all reachable robot states.) Tj
+1 0 0 1 50 119.88999999999999 Tm (* $\\mathcal{A}$: Directed transitions between valid states representing a move or a) Tj
+1 0 0 1 50 105.88999999999999 Tm (destruction followed by a move.) Tj
+1 0 0 1 50 91.88999999999999 Tm (* $c$: The cost function $c: \\mathcal{A} \\rightarrow \\mathbb{R}$, which can take) Tj
+1 0 0 1 50 77.88999999999999 Tm (positive, zero, or negative values.) Tj
+ET
+
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 6 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+8 0 obj
+<< /Length 4255 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm () Tj
+1 0 0 1 50 777.89 Tm (#### 2. Identification of Vertices, Edges, and Movement Costs) Tj
+1 0 0 1 50 763.89 Tm (* **Vertices:** Each vertex is a state tuple $s = \(x, y, \\text{energy},) Tj
+1 0 0 1 50 749.89 Tm (\\text{mask}\)$.) Tj
+1 0 0 1 50 735.89 Tm (* **Edges:** A directed edge exists from state $s$ to state $s'$ if:) Tj
+1 0 0 1 50 721.89 Tm (  1. $\(x', y'\)$ is within grid boundaries \($1 \\le x', y' \\le 15$\).) Tj
+1 0 0 1 50 707.89 Tm (  2. $\(x', y'\)$ is not a permanent orange obstacle \($O$\).) Tj
+1 0 0 1 50 693.89 Tm (  3. If $\(x', y'\)$ is an intact blue cell, the robot has energy $\\ge 2$ to destroy) Tj
+1 0 0 1 50 679.89 Tm (it.) Tj
+1 0 0 1 50 665.89 Tm (* **Costs:** ) Tj
+1 0 0 1 50 651.89 Tm (  $$\\text{Edge Cost} = \\text{Movement Cost} + \(\\text{Destruction Cost if intact: } 5\)) Tj
+1 0 0 1 50 637.89 Tm (+ \(\\text{Penalty Cost if } B-: 5\)$$) Tj
+1 0 0 1 50 623.89 Tm () Tj
+1 0 0 1 50 609.89 Tm (#### 3. Representation of Permanent and Destructible Obstacles) Tj
+1 0 0 1 50 595.89 Tm (* **Permanent Obstacles \($O$\):** Excluded entirely from the vertex set. No directed) Tj
+1 0 0 1 50 581.89 Tm (edge enters an orange cell.) Tj
+1 0 0 1 50 567.89 Tm (* **Destructible Obstacles \($B, B+, B-$\):** Maintained via an indexed bitmask. An) Tj
+1 0 0 1 50 553.89 Tm (intact blue cell acts as a conditional barrier requiring an energy threshold of $2$.) Tj
+1 0 0 1 50 539.89 Tm (Once destroyed, its bit is set to $1$ in the bitmask, and it acts as an ordinary free) Tj
+1 0 0 1 50 525.89 Tm (cell carrying standard movement costs with no further energy deduction or) Tj
+1 0 0 1 50 511.89 Tm (bonus/penalty re-triggering.) Tj
+1 0 0 1 50 497.89 Tm () Tj
+1 0 0 1 50 483.89 Tm (#### 4. How the Graph Evolves Upon Destruction) Tj
+1 0 0 1 50 469.89 Tm (Graph evolution is captured without mutating the underlying grid array by) Tj
+1 0 0 1 50 455.89 Tm (transitioning between **state-space layers**. The bitmask has $15$ bits \(one per blue) Tj
+1 0 0 1 50 441.89 Tm (cell\). Destruction transitions the robot from a state in layer $\\text{mask}$ to a) Tj
+1 0 0 1 50 427.89 Tm (state in layer $\\text{mask} \\mid \(1 \\ll i\)$. In this new layer, cell $i$ has incoming) Tj
+1 0 0 1 50 413.89 Tm (edges from all adjacent accessible cells with normal step costs, reflecting permanent) Tj
+1 0 0 1 50 399.89 Tm (accessibility.) Tj
+1 0 0 1 50 385.89 Tm () Tj
+1 0 0 1 50 371.89 Tm (#### 5. Directed vs. Undirected Nature of the Graph) Tj
+1 0 0 1 50 357.89 Tm (The navigation graph is strictly **DIRECTED** for three fundamental reasons:) Tj
+1 0 0 1 50 343.89 Tm (1. **Asymmetry of Movement Costs:** Reversing a move has an asymmetric cost. Moving) Tj
+1 0 0 1 50 329.89 Tm (Right has cost $+2$, but moving Left has cost $-1$. Moving Up has cost $+2$, but) Tj
+1 0 0 1 50 315.89 Tm (moving Down has cost $-1$. Moving Up-Right has cost $+3$, but its reverse is not even) Tj
+1 0 0 1 50 301.89 Tm (an allowed movement.) Tj
+1 0 0 1 50 287.89 Tm (2. **Asymmetry of Movement Directions:** Permitted directions are $\\{R, L, U, D, UR,) Tj
+1 0 0 1 50 273.89 Tm (UL\\}$. Downward diagonal transitions \($DR, DL$\) do not exist. Therefore, an edge $\(x,) Tj
+1 0 0 1 50 259.89 Tm (y\) \\rightarrow \(x+1, y+1\)$ via $UR$ has no reciprocal edge $\(x+1, y+1\) \\rightarrow) Tj
+1 0 0 1 50 245.89 Tm (\(x, y\)$.) Tj
+1 0 0 1 50 231.89 Tm (3. **One-Way State Transitions:** Destroying an obstacle consumes energy and) Tj
+1 0 0 1 50 217.89 Tm (permanently alters the bitmask. This is an irreversible, strictly one-way state) Tj
+1 0 0 1 50 203.89 Tm (transition.) Tj
+1 0 0 1 50 189.89 Tm () Tj
+1 0 0 1 50 175.89 Tm (#### 6. Robot State Definition) Tj
+1 0 0 1 50 161.89 Tm (A state is formally defined as:) Tj
+1 0 0 1 50 147.89 Tm ($$s = \(x, y, \\text{energy}, \\text{mask}\)$$) Tj
+1 0 0 1 50 133.89 Tm (Where:) Tj
+1 0 0 1 50 119.88999999999999 Tm (* $x \\in \\{1, \\dots, 15\\}$: Column coordinate.) Tj
+1 0 0 1 50 105.88999999999999 Tm (* $y \\in \\{1, \\dots, 15\\}$: Row coordinate.) Tj
+1 0 0 1 50 91.88999999999999 Tm (* $\\text{energy} \\in \\{0, \\dots, 10\\}$: Current remaining energy units.) Tj
+1 0 0 1 50 77.88999999999999 Tm (* $\\text{mask} \\in \\{0, \\dots, 2^{15}-1\\}$: An integer bitmask where bit $i = 1$) Tj
+ET
+
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 8 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+10 0 obj
+<< /Length 3847 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (indicates that the $i$-th blue obstacle has been destroyed.) Tj
+1 0 0 1 50 777.89 Tm () Tj
+1 0 0 1 50 763.89 Tm (*Deduplication Key:* Since energy is a deterministic function of the destroyed mask) Tj
+1 0 0 1 50 749.89 Tm (\($\\text{energy} = 10 - 2 \\cdot |\\text{destroyed}| + 3 \\cdot |\\text{destroyed } B+|$\)) Tj
+1 0 0 1 50 735.89 Tm (along any cycle-free path, visited state equality is uniquely determined by $\(x, y,) Tj
+1 0 0 1 50 721.89 Tm (\\text{mask}\)$.) Tj
+1 0 0 1 50 707.89 Tm () Tj
+1 0 0 1 50 693.89 Tm (---) Tj
+1 0 0 1 50 679.89 Tm () Tj
+1 0 0 1 50 665.89 Tm (### 1.3 Task 2: Breadth-First Search \(BFS\) Navigation) Tj
+1 0 0 1 50 651.89 Tm () Tj
+1 0 0 1 50 637.89 Tm (BFS explores the state space level-by-level using a FIFO queue.) Tj
+1 0 0 1 50 623.89 Tm () Tj
+1 0 0 1 50 609.89 Tm (```) Tj
+1 0 0 1 50 595.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 581.89 Tm (ALGORITHM 1: Breadth-First Search \(FIFO Queue\)) Tj
+1 0 0 1 50 567.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 553.89 Tm (Input : Robot start state s0 = \(7, 1, 10, 0\), Goal coordinate \(15, 14\)) Tj
+1 0 0 1 50 539.89 Tm (Output: Optimal path in terms of edge hops, action sequence, cost, remaining energy) Tj
+1 0 0 1 50 525.89 Tm (1: Queue Q <- empty; Visited <- empty set; Parent <- empty map) Tj
+1 0 0 1 50 511.89 Tm (2: Q.enqueue\(s0\); Visited.add\(key\(s0\)\); Parent[key\(s0\)] <- null) Tj
+1 0 0 1 50 497.89 Tm (3: while Q is not empty do) Tj
+1 0 0 1 50 483.89 Tm (4:     s <- Q.dequeue\(\)) Tj
+1 0 0 1 50 469.89 Tm (5:     if \(s.x, s.y\) == Goal then return ReconstructPath\(s, Parent\)) Tj
+1 0 0 1 50 455.89 Tm (6:     for each \(s', step_cost, actions\) in Robot.Successors\(s\) do) Tj
+1 0 0 1 50 441.89 Tm (7:         if key\(s'\) not in Visited then) Tj
+1 0 0 1 50 427.89 Tm (8:             Visited.add\(key\(s'\)\)) Tj
+1 0 0 1 50 413.89 Tm (9:             Parent[key\(s'\)] <- \(s, step_cost, actions\)) Tj
+1 0 0 1 50 399.89 Tm (10:            Q.enqueue\(s'\)) Tj
+1 0 0 1 50 385.89 Tm (11: return Failure) Tj
+1 0 0 1 50 371.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 357.89 Tm (```) Tj
+1 0 0 1 50 343.89 Tm () Tj
+1 0 0 1 50 329.89 Tm (#### BFS Empirical Results) Tj
+1 0 0 1 50 315.89 Tm (* **States Expanded \(Traversal Length\):** 984 states) Tj
+1 0 0 1 50 301.89 Tm (* **Goal Reachability:** **YES**  reached at $\(15, 14\)$) Tj
+1 0 0 1 50 287.89 Tm (* **Path Length:** **15 moves**) Tj
+1 0 0 1 50 273.89 Tm (* **Total Navigation Cost:** **51 units**) Tj
+1 0 0 1 50 259.89 Tm (* **Remaining Energy:** **6 units**) Tj
+1 0 0 1 50 245.89 Tm (* **Blue Obstacles Destroyed \(2\):** $\(9, 3\)$ $[B]$ and $\(11, 11\)$ $[B-]$) Tj
+1 0 0 1 50 231.89 Tm () Tj
+1 0 0 1 50 217.89 Tm (#### Complete Reconstructed BFS Path) Tj
+1 0 0 1 50 203.89 Tm ($$\(7,1\) \\xrightarrow{\\text{Up}} \(7,2\) \\xrightarrow{\\text{UR}} \(8,3\)) Tj
+1 0 0 1 50 189.89 Tm (\\xrightarrow{\\text{Destroy+Right}} \(9,3\) \\xrightarrow{\\text{UR}} \(10,4\)) Tj
+1 0 0 1 50 175.89 Tm (\\xrightarrow{\\text{Up}} \(10,5\) \\xrightarrow{\\text{Up}} \(10,6\) \\xrightarrow{\\text{Up}}) Tj
+1 0 0 1 50 161.89 Tm (\(10,7\) \\xrightarrow{\\text{Up}} \(10,8\) \\xrightarrow{\\text{Up}} \(10,9\)) Tj
+1 0 0 1 50 147.89 Tm (\\xrightarrow{\\text{Up}} \(10,10\) \\xrightarrow{\\text{Destroy+UR}} \(11,11\)) Tj
+1 0 0 1 50 133.89 Tm (\\xrightarrow{\\text{UR}} \(12,12\) \\xrightarrow{\\text{UR}} \(13,13\)) Tj
+1 0 0 1 50 119.88999999999999 Tm (\\xrightarrow{\\text{UR}} \(14,14\) \\xrightarrow{\\text{Right}} \(15,14\)$$) Tj
+1 0 0 1 50 105.88999999999999 Tm () Tj
+1 0 0 1 50 91.88999999999999 Tm (#### Step-by-Step Action Sequence \(BFS\)) Tj
+1 0 0 1 50 77.88999999999999 Tm (```) Tj
+ET
+
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 10 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+12 0 obj
+<< /Length 4577 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm ( 1. MOVE Up       to \(7,2\)   move cost +2                     [Energy: 10]) Tj
+1 0 0 1 50 777.89 Tm ( 2. MOVE Up-Right to \(8,3\)   move cost +3                     [Energy: 10]) Tj
+1 0 0 1 50 763.89 Tm ( 3. DESTROY \(9,3\) [B]        energy -2, cost +5               [Energy:  8]) Tj
+1 0 0 1 50 749.89 Tm ( 4. MOVE Right    to \(9,3\)   move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 735.89 Tm ( 5. MOVE Up-Right to \(10,4\)  move cost +3                     [Energy:  8]) Tj
+1 0 0 1 50 721.89 Tm ( 6. MOVE Up       to \(10,5\)  move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 707.89 Tm ( 7. MOVE Up       to \(10,6\)  move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 693.89 Tm ( 8. MOVE Up       to \(10,7\)  move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 679.89 Tm ( 9. MOVE Up       to \(10,8\)  move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 665.89 Tm (10. MOVE Up       to \(10,9\)  move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 651.89 Tm (11. MOVE Up       to \(10,10\) move cost +2                     [Energy:  8]) Tj
+1 0 0 1 50 637.89 Tm (12. DESTROY \(11,11\) [B-]     energy -2, cost +5               [Energy:  6]) Tj
+1 0 0 1 50 623.89 Tm (13. MOVE Up-Right to \(11,11\) move cost +3, penalty cost +5    [Energy:  6]) Tj
+1 0 0 1 50 609.89 Tm (14. MOVE Up-Right to \(12,12\) move cost +3                     [Energy:  6]) Tj
+1 0 0 1 50 595.89 Tm (15. MOVE Up-Right to \(13,13\) move cost +3                     [Energy:  6]) Tj
+1 0 0 1 50 581.89 Tm (16. MOVE Up-Right to \(14,14\) move cost +3                     [Energy:  6]) Tj
+1 0 0 1 50 567.89 Tm (17. MOVE Right    to \(15,14\) move cost +2                     [Energy:  6]) Tj
+1 0 0 1 50 553.89 Tm (Total Navigation Cost = 2 + 3 + \(5+2\) + 3 + 2 + 2 + 2 + 2 + 2 + 2 + \(5+3+5\) + 3 + 3 +) Tj
+1 0 0 1 50 539.89 Tm (3 + 2 = 51) Tj
+1 0 0 1 50 525.89 Tm (```) Tj
+1 0 0 1 50 511.89 Tm () Tj
+1 0 0 1 50 497.89 Tm (#### Discussion: Does BFS Guarantee a Minimum-Cost Path?) Tj
+1 0 0 1 50 483.89 Tm (**Answer: NO.** BFS guarantees the shortest path **only in terms of edge count) Tj
+1 0 0 1 50 469.89 Tm (\(unweighted fewest hops\)**, or when all edge weights are identical and positive.) Tj
+1 0 0 1 50 455.89 Tm () Tj
+1 0 0 1 50 441.89 Tm (In this environment, BFS does not guarantee a minimum-cost path because:) Tj
+1 0 0 1 50 427.89 Tm (1. **Asymmetric & Negative Edge Costs:** Edge costs vary from $-3$ to $+3$. A path) Tj
+1 0 0 1 50 413.89 Tm (with fewer hops can accumulate expensive positive edges, whereas a longer path) Tj
+1 0 0 1 50 399.89 Tm (utilizing negative edges \(Left $-1$, Down $-1$, Up-Left $-3$\) can achieve a lower) Tj
+1 0 0 1 50 385.89 Tm (total cost.) Tj
+1 0 0 1 50 371.89 Tm (2. **Negative-Cost Cycles:** The graph contains directed cycles with negative net) Tj
+1 0 0 1 50 357.89 Tm (cost:) Tj
+1 0 0 1 50 343.89 Tm (   $$\\text{Up-Left } \(-3\) + \\text{Right } \(+2\) + \\text{Down } \(-1\) = -2$$) Tj
+1 0 0 1 50 329.89 Tm (   Traversing this 3-cell loop returns the robot to the starting coordinate with a) Tj
+1 0 0 1 50 315.89 Tm (net cost reduction of $-2$. Because BFS ignores costs during frontier expansion, it) Tj
+1 0 0 1 50 301.89 Tm (fails to exploit cost-reducing transitions.) Tj
+1 0 0 1 50 287.89 Tm (3. **Empirical Proof:** BFS found a 15-move path costing **51**. However, our DFS) Tj
+1 0 0 1 50 273.89 Tm (experiment with reverse successor ordering discovered a 78-move path costing only) Tj
+1 0 0 1 50 259.89 Tm (**34**. This conclusively proves that BFS does not minimize cost in this setting.) Tj
+1 0 0 1 50 245.89 Tm () Tj
+1 0 0 1 50 231.89 Tm (---) Tj
+1 0 0 1 50 217.89 Tm () Tj
+1 0 0 1 50 203.89 Tm (### 1.4 Task 3: Depth-First Search \(DFS\) Navigation) Tj
+1 0 0 1 50 189.89 Tm () Tj
+1 0 0 1 50 175.89 Tm (Two DFS implementations were developed:) Tj
+1 0 0 1 50 161.89 Tm (* **\(a\) Iterative DFS:** Implemented with an explicit custom LIFO Stack. To ensure) Tj
+1 0 0 1 50 147.89 Tm (strict equivalence with recursive DFS, successor states are pushed in **reverse) Tj
+1 0 0 1 50 133.89 Tm (order** so that the first successor is popped and explored first. Marking occurs upon) Tj
+1 0 0 1 50 119.88999999999999 Tm (pop.) Tj
+1 0 0 1 50 105.88999999999999 Tm (* **\(b\) Recursive DFS:** Implemented via recursive function calls using a dedicated) Tj
+1 0 0 1 50 91.88999999999999 Tm (large-stack worker thread \(`threading.Thread` with 256MB stack\) to prevent recursion) Tj
+1 0 0 1 50 77.88999999999999 Tm (limit overflows on large state graphs.) Tj
+ET
+
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 12 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+14 0 obj
+<< /Length 4285 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm () Tj
+1 0 0 1 50 777.89 Tm (#### DFS Empirical Results) Tj
+1 0 0 1 50 763.89 Tm (Both implementations produced **identical traversal orders and paths**:) Tj
+1 0 0 1 50 749.89 Tm () Tj
+1 0 0 1 50 735.89 Tm (| Metric | Iterative DFS \(Stack\) | Recursive DFS |) Tj
+1 0 0 1 50 721.89 Tm (|---|:---:|:---:|) Tj
+1 0 0 1 50 707.89 Tm (| **States Expanded** | 42 | 42 |) Tj
+1 0 0 1 50 693.89 Tm (| **Goal Reachable** | YES | YES |) Tj
+1 0 0 1 50 679.89 Tm (| **Path Moves** | 40 moves | 40 moves |) Tj
+1 0 0 1 50 665.89 Tm (| **Total Navigation Cost** | 68 units | 68 units |) Tj
+1 0 0 1 50 651.89 Tm (| **Remaining Energy** | 7 units | 7 units |) Tj
+1 0 0 1 50 637.89 Tm (| **Blue Obstacles Destroyed** | 3: $\(9,3\), \(13,11\), \(12,11\)$ | 3: $\(9,3\), \(13,11\),) Tj
+1 0 0 1 50 623.89 Tm (\(12,11\)$ |) Tj
+1 0 0 1 50 609.89 Tm (| **Identical Traversal Order** | **TRUE** | **TRUE** |) Tj
+1 0 0 1 50 595.89 Tm (| **Identical Final Path** | **TRUE** | **TRUE** |) Tj
+1 0 0 1 50 581.89 Tm () Tj
+1 0 0 1 50 567.89 Tm (#### Complete Reconstructed DFS Path \(40 moves\)) Tj
+1 0 0 1 50 553.89 Tm ($$\(7,1\) \\rightarrow \(6,1\) \\rightarrow \(6,2\) \\rightarrow \(7,2\) \\rightarrow \(7,3\)) Tj
+1 0 0 1 50 539.89 Tm (\\rightarrow \(8,3\) \\xrightarrow{\\text{Destroy}} \(9,3\) \\rightarrow \(10,3\) \\rightarrow) Tj
+1 0 0 1 50 525.89 Tm (\(10,4\) \\rightarrow \(11,4\) \\rightarrow \(12,4\) \\rightarrow \(13,4\) \\rightarrow \(14,4\)) Tj
+1 0 0 1 50 511.89 Tm (\\rightarrow \(14,5\) \\rightarrow \(13,5\) \\rightarrow \(12,5\) \\rightarrow \(11,5\)) Tj
+1 0 0 1 50 497.89 Tm (\\rightarrow \(10,5\) \\rightarrow \(10,6\) \\rightarrow \(10,7\) \\rightarrow \(10,8\)) Tj
+1 0 0 1 50 483.89 Tm (\\rightarrow \(10,9\) \\rightarrow \(9,9\) \\rightarrow \(9,10\) \\rightarrow \(10,10\)) Tj
+1 0 0 1 50 469.89 Tm (\\rightarrow \(11,10\) \\rightarrow \(12,10\) \\rightarrow \(13,10\)) Tj
+1 0 0 1 50 455.89 Tm (\\xrightarrow{\\text{Destroy}} \(13,11\) \\xrightarrow{\\text{Destroy}} \(12,11\) \\rightarrow) Tj
+1 0 0 1 50 441.89 Tm (\(13,11\) \\rightarrow \(13,12\) \\rightarrow \(14,12\) \\rightarrow \(13,13\) \\rightarrow) Tj
+1 0 0 1 50 427.89 Tm (\(12,13\) \\rightarrow \(11,13\) \\rightarrow \(11,14\) \\rightarrow \(12,14\) \\rightarrow) Tj
+1 0 0 1 50 413.89 Tm (\(13,14\) \\rightarrow \(14,14\) \\rightarrow \(15,14\)$$) Tj
+1 0 0 1 50 399.89 Tm () Tj
+1 0 0 1 50 385.89 Tm (Energy calculation:) Tj
+1 0 0 1 50 371.89 Tm ($$\\text{Start \(10\)} - \\text{Destroy }\(9,3\) [2] - \\text{Destroy }\(13,11\) [2] +) Tj
+1 0 0 1 50 357.89 Tm (\\text{Bonus }\(13,11\) [3] - \\text{Destroy }\(12,11\) [2] = 7 \\text{ units remaining}$$) Tj
+1 0 0 1 50 343.89 Tm () Tj
+1 0 0 1 50 329.89 Tm (#### Successor Ordering Experiment) Tj
+1 0 0 1 50 315.89 Tm (To demonstrate the sensitivity of DFS to successor generation order, three ordering) Tj
+1 0 0 1 50 301.89 Tm (configurations were tested:) Tj
+1 0 0 1 50 287.89 Tm () Tj
+1 0 0 1 50 273.89 Tm (| Order Label | Successor Exploration Sequence | States Expanded | Moves | Total Cost) Tj
+1 0 0 1 50 259.89 Tm (| Final Energy |) Tj
+1 0 0 1 50 245.89 Tm (|---|---|:---:|:---:|:---:|:---:|) Tj
+1 0 0 1 50 231.89 Tm (| **Default** | Right, Left, Up, Down, Up-Right, Up-Left | 42 | 40 | 68 | 7 |) Tj
+1 0 0 1 50 217.89 Tm (| **Goal-ward** | Up-Right, Up, Right, Up-Left, Left, Down | 43 | 42 | 75 | 4 |) Tj
+1 0 0 1 50 203.89 Tm (| **Reverse** | Up-Left, Up-Right, Down, Up, Left, Right | 91 | 78 | **34** | 4 |) Tj
+1 0 0 1 50 189.89 Tm () Tj
+1 0 0 1 50 175.89 Tm (#### Discussion: Why DFS Does Not Produce an Optimal Path) Tj
+1 0 0 1 50 161.89 Tm (DFS operates on a **greedy commitment** paradigm: it follows a single branch until it) Tj
+1 0 0 1 50 147.89 Tm (either hits a dead-end or discovers the goal. Once the goal is encountered, search) Tj
+1 0 0 1 50 133.89 Tm (terminates immediately.) Tj
+1 0 0 1 50 119.88999999999999 Tm (1. **Lack of Cost Consideration:** DFS does not evaluate edge weights or accumulated) Tj
+1 0 0 1 50 105.88999999999999 Tm (path costs. It returns the *first discovered path*, which depends entirely on) Tj
+1 0 0 1 50 91.88999999999999 Tm (arbitrary tie-breaking and successor ordering.) Tj
+1 0 0 1 50 77.88999999999999 Tm (2. **Successor Ordering Impact:** When configured with the Goal-ward heuristic, DFS) Tj
+ET
+
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 14 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+16 0 obj
+<< /Length 4009 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (rapidly plunges toward the top-right, incurring high positive move costs \($+3, +2$\),) Tj
+1 0 0 1 50 777.89 Tm (yielding a path cost of $75$. Conversely, Reverse order prioritizes Up-Left \($-3$\)) Tj
+1 0 0 1 50 763.89 Tm (and Down \($-1$\), wandering through $78$ moves but driving the net cost down to $34$.) Tj
+1 0 0 1 50 749.89 Tm (3. **No Backtracking for Optimality:** Without exhaustive exploration of all paths) Tj
+1 0 0 1 50 735.89 Tm (\(which would require exponential time $O\(b^d\)$\) or branch-and-bound pruning, DFS) Tj
+1 0 0 1 50 721.89 Tm (cannot guarantee optimality in any weighted environment.) Tj
+1 0 0 1 50 707.89 Tm () Tj
+1 0 0 1 50 693.89 Tm (---) Tj
+1 0 0 1 50 679.89 Tm () Tj
+1 0 0 1 50 665.89 Tm (## 2. Question 2: Intelligent Robot Navigation using Prims and Kruskals Algorithms) Tj
+1 0 0 1 50 651.89 Tm () Tj
+1 0 0 1 50 637.89 Tm (### 2.1 MST Problem Formulation & Graph Construction) Tj
+1 0 0 1 50 623.89 Tm () Tj
+1 0 0 1 50 609.89 Tm (To compute Minimum Spanning Trees \(MST\), the directional, asymmetric navigation graph) Tj
+1 0 0 1 50 595.89 Tm (is transformed into an **undirected, weighted graph** under the following rules:) Tj
+1 0 0 1 50 581.89 Tm (* **Vertices \($V$\):** Every non-permanent cell represents a vertex. All blue) Tj
+1 0 0 1 50 567.89 Tm (obstacles \($B, B+, B-$\) are treated as accessible free cells. Permanent orange) Tj
+1 0 0 1 50 553.89 Tm (obstacles \($O$\) are excluded.) Tj
+1 0 0 1 50 539.89 Tm (  $$|V| = 225 - 82 = 143 \\text{ vertices}$$) Tj
+1 0 0 1 50 525.89 Tm (* **Edges \($E$\):** An undirected edge connects two cells if they are adjacent under) Tj
+1 0 0 1 50 511.89 Tm (at least one permitted movement direction, ignoring direction. Because horizontal) Tj
+1 0 0 1 50 497.89 Tm (\($R, L$\), vertical \($U, D$\), and diagonal \($UR, UL$\) directions are permitted, every) Tj
+1 0 0 1 50 483.89 Tm (non-wall cell connects to its horizontal, vertical, and both diagonal neighbors.) Tj
+1 0 0 1 50 469.89 Tm (* **Weights:**) Tj
+1 0 0 1 50 455.89 Tm (  * Horizontal connections: $w = 1.0$) Tj
+1 0 0 1 50 441.89 Tm (  * Vertical connections: $w = 1.0$) Tj
+1 0 0 1 50 427.89 Tm (  * Diagonal connections: $w = \\sqrt{2} \\approx 1.414214$) Tj
+1 0 0 1 50 413.89 Tm (* Total candidate edges considered: **343 undirected edges** \(96 Horizontal, 102) Tj
+1 0 0 1 50 399.89 Tm (Vertical, 145 Diagonal\).) Tj
+1 0 0 1 50 385.89 Tm () Tj
+1 0 0 1 50 371.89 Tm (---) Tj
+1 0 0 1 50 357.89 Tm () Tj
+1 0 0 1 50 343.89 Tm (### 2.2 Task 1: Prims Algorithm) Tj
+1 0 0 1 50 329.89 Tm () Tj
+1 0 0 1 50 315.89 Tm (Prims algorithm builds the MST by greedily attaching the minimum-weight edge) Tj
+1 0 0 1 50 301.89 Tm (connecting a vertex in the growing tree to a vertex outside the tree, utilizing our) Tj
+1 0 0 1 50 287.89 Tm (custom binary `MinHeap`.) Tj
+1 0 0 1 50 273.89 Tm () Tj
+1 0 0 1 50 259.89 Tm (```) Tj
+1 0 0 1 50 245.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 231.89 Tm (ALGORITHM 2: Prim's MST with Minimum Spanning Forest Handling) Tj
+1 0 0 1 50 217.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 203.89 Tm (Input : Graph G = \(V, E\) with adjacency lists, |V| = n) Tj
+1 0 0 1 50 189.89 Tm (Output: Selected edges forming MST or Minimum Spanning Forest \(MSF\)) Tj
+1 0 0 1 50 175.89 Tm (1: in_tree <- array of False of size n; chosen_edges <- empty list; components <-) Tj
+1 0 0 1 50 161.89 Tm (empty list) Tj
+1 0 0 1 50 147.89 Tm (2: for root = 0 to n - 1 do) Tj
+1 0 0 1 50 133.89 Tm (3:     if in_tree[root] then continue) Tj
+1 0 0 1 50 119.88999999999999 Tm (4:     heap <- MinHeap\(\); in_tree[root] <- True; comp_size <- 1) Tj
+1 0 0 1 50 105.88999999999999 Tm (5:     for each \(v, w\) in Adj[root] do heap.push\(w, \(root, v\)\)) Tj
+1 0 0 1 50 91.88999999999999 Tm (6:     while heap is not empty do) Tj
+1 0 0 1 50 77.88999999999999 Tm (7:         w, \(u, v\) <- heap.pop_min\(\)) Tj
+ET
+
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 16 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+18 0 obj
+<< /Length 3604 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (8:         if in_tree[v] then continue) Tj
+1 0 0 1 50 777.89 Tm (9:         in_tree[v] <- True; comp_size <- comp_size + 1) Tj
+1 0 0 1 50 763.89 Tm (10:        chosen_edges.append\(\(w, u, v\)\)) Tj
+1 0 0 1 50 749.89 Tm (11:        for each \(x, wx\) in Adj[v] do) Tj
+1 0 0 1 50 735.89 Tm (12:            if not in_tree[x] then heap.push\(wx, \(v, x\)\)) Tj
+1 0 0 1 50 721.89 Tm (13:    components.append\(\(root, comp_size\)\)) Tj
+1 0 0 1 50 707.89 Tm (14: return chosen_edges, components) Tj
+1 0 0 1 50 693.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 679.89 Tm (```) Tj
+1 0 0 1 50 665.89 Tm () Tj
+1 0 0 1 50 651.89 Tm (#### Prims Empirical Results) Tj
+1 0 0 1 50 637.89 Tm (* **Vertices Included:** 143) Tj
+1 0 0 1 50 623.89 Tm (* **Edges Selected:** Exactly $142$ edges \($|V| - 1 = 143 - 1 = 142$\)) Tj
+1 0 0 1 50 609.89 Tm (* **Total MST Weight:** **142.000000**) Tj
+1 0 0 1 50 595.89 Tm (* **Edge Breakdown:**) Tj
+1 0 0 1 50 581.89 Tm (  * Horizontal edges \($w = 1.0$\): **74**) Tj
+1 0 0 1 50 567.89 Tm (  * Vertical edges \($w = 1.0$\): **68**) Tj
+1 0 0 1 50 553.89 Tm (  * Diagonal edges \($w = \\sqrt{2}$\): **0**) Tj
+1 0 0 1 50 539.89 Tm (* **Connected Component Determination:**) Tj
+1 0 0 1 50 525.89 Tm (  * **Result:** Exactly **1 connected component** containing all $143$ vertices.) Tj
+1 0 0 1 50 511.89 Tm (  * The graph is **fully connected**; the algorithm produces a single MST without) Tj
+1 0 0 1 50 497.89 Tm (needing a disconnected forest.) Tj
+1 0 0 1 50 483.89 Tm () Tj
+1 0 0 1 50 469.89 Tm (---) Tj
+1 0 0 1 50 455.89 Tm () Tj
+1 0 0 1 50 441.89 Tm (### 2.3 Task 2: Kruskals Algorithm) Tj
+1 0 0 1 50 427.89 Tm () Tj
+1 0 0 1 50 413.89 Tm (Kruskals algorithm sorts all $343$ edges in ascending order using custom stable) Tj
+1 0 0 1 50 399.89 Tm (`merge_sort` and repeatedly incorporates edges that connect distinct components using) Tj
+1 0 0 1 50 385.89 Tm (a Disjoint-Set Union \(`DSU`\) data structure with path compression and union by rank.) Tj
+1 0 0 1 50 371.89 Tm () Tj
+1 0 0 1 50 357.89 Tm (```) Tj
+1 0 0 1 50 343.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 329.89 Tm (ALGORITHM 3: Kruskal's MST \(Merge Sort + DSU\)) Tj
+1 0 0 1 50 315.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 301.89 Tm (Input : Graph G = \(V, E\), edge list) Tj
+1 0 0 1 50 287.89 Tm (Output: Selected MST edges, final forest components) Tj
+1 0 0 1 50 273.89 Tm (1: sorted_edges <- merge_sort\(E, key = weight\)) Tj
+1 0 0 1 50 259.89 Tm (2: dsu <- DSU\(n = |V|\)) Tj
+1 0 0 1 50 245.89 Tm (3: chosen_edges <- empty list) Tj
+1 0 0 1 50 231.89 Tm (4: for each \(w, u, v\) in sorted_edges do) Tj
+1 0 0 1 50 217.89 Tm (5:     if dsu.union\(u, v\) == True then       # True iff u and v were in different) Tj
+1 0 0 1 50 203.89 Tm (sets) Tj
+1 0 0 1 50 189.89 Tm (6:         chosen_edges.append\(\(w, u, v\)\)) Tj
+1 0 0 1 50 175.89 Tm (7:         if len\(chosen_edges\) == |V| - 1 then break) Tj
+1 0 0 1 50 161.89 Tm (8: return chosen_edges, dsu.components) Tj
+1 0 0 1 50 147.89 Tm (--------------------------------------------------------------------------------) Tj
+1 0 0 1 50 133.89 Tm (```) Tj
+1 0 0 1 50 119.88999999999999 Tm () Tj
+1 0 0 1 50 105.88999999999999 Tm (#### Kruskals Empirical Results) Tj
+1 0 0 1 50 91.88999999999999 Tm (* **Total Edges Processed:** 343 edges \(198 edges with weight $1.0$, 145 edges with) Tj
+1 0 0 1 50 77.88999999999999 Tm (weight $\\sqrt{2}$\).) Tj
+ET
+
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 18 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+20 0 obj
+<< /Length 3558 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (* **Edges Selected:** Exactly $142$ edges.) Tj
+1 0 0 1 50 777.89 Tm (* **Total MST Weight:** **142.000000**) Tj
+1 0 0 1 50 763.89 Tm (* **Edge Breakdown:**) Tj
+1 0 0 1 50 749.89 Tm (  * Horizontal edges \($w = 1.0$\): **40**) Tj
+1 0 0 1 50 735.89 Tm (  * Vertical edges \($w = 1.0$\): **102**) Tj
+1 0 0 1 50 721.89 Tm (  * Diagonal edges \($w = \\sqrt{2}$\): **0**) Tj
+1 0 0 1 50 707.89 Tm (* **Final Components:** 1 \(Single MST\).) Tj
+1 0 0 1 50 693.89 Tm () Tj
+1 0 0 1 50 679.89 Tm (---) Tj
+1 0 0 1 50 665.89 Tm () Tj
+1 0 0 1 50 651.89 Tm (### 2.4 Comparative Analysis: Prim vs. Kruskal) Tj
+1 0 0 1 50 637.89 Tm () Tj
+1 0 0 1 50 623.89 Tm (| Comparison Metric | Prims Algorithm | Kruskals Algorithm | Match / Status |) Tj
+1 0 0 1 50 609.89 Tm (|---|:---:|:---:|:---:|) Tj
+1 0 0 1 50 595.89 Tm (| **Total Edges Selected** | 142 | 142 | **Identical** \($|V|-1$\) |) Tj
+1 0 0 1 50 581.89 Tm (| **Total Tree Weight** | **142.000000** | **142.000000** | **Identical** \($\\Delta =) Tj
+1 0 0 1 50 567.89 Tm (0$\) |) Tj
+1 0 0 1 50 553.89 Tm (| **Edges of Weight 1.0** | 142 | 142 | **Identical** |) Tj
+1 0 0 1 50 539.89 Tm (| **Edges of Weight $\\sqrt{2}$** | 0 | 0 | **Identical** |) Tj
+1 0 0 1 50 525.89 Tm (| **Connected Components** | 1 \(Single MST\) | 1 \(Single MST\) | **Identical** |) Tj
+1 0 0 1 50 511.89 Tm (| **Common Edges Shared** | 103 of 142 | 103 of 142 | 72.5% overlap |) Tj
+1 0 0 1 50 497.89 Tm (| **Differing Edges** | 39 | 39 | Valid alternative MSTs |) Tj
+1 0 0 1 50 483.89 Tm () Tj
+1 0 0 1 50 469.89 Tm (#### Discussion on Differing Edges) Tj
+1 0 0 1 50 455.89 Tm (While both algorithms produce the **exact same optimal weight \(142.000000\)**, the) Tj
+1 0 0 1 50 441.89 Tm (individual edges selected differ on $39$ edges.) Tj
+1 0 0 1 50 427.89 Tm () Tj
+1 0 0 1 50 413.89 Tm (*Theoretical Justification:* An MST is **unique if and only if all edge weights in) Tj
+1 0 0 1 50 399.89 Tm (the graph are distinct**. In this grid, there are 198 horizontal/vertical edges that) Tj
+1 0 0 1 50 385.89 Tm (all tie at weight $1.0$.) Tj
+1 0 0 1 50 371.89 Tm (* Prim grows a single local tree outward from vertex $\(1,1\)$, breaking ties based on) Tj
+1 0 0 1 50 357.89 Tm (neighbor adjacency discovery order.) Tj
+1 0 0 1 50 343.89 Tm (* Kruskal sorts all edges globally via `merge_sort` and processes them in coordinate) Tj
+1 0 0 1 50 329.89 Tm (index order across the entire grid.) Tj
+1 0 0 1 50 315.89 Tm () Tj
+1 0 0 1 50 301.89 Tm (Both edge sets form valid, spanning, cycle-free trees of minimal weight, providing) Tj
+1 0 0 1 50 287.89 Tm (empirical confirmation of the Cut and Cycle properties of MSTs.) Tj
+1 0 0 1 50 273.89 Tm () Tj
+1 0 0 1 50 259.89 Tm (---) Tj
+1 0 0 1 50 245.89 Tm () Tj
+1 0 0 1 50 231.89 Tm (## 3. Question 3: Time & Space Complexity Analysis) Tj
+1 0 0 1 50 217.89 Tm () Tj
+1 0 0 1 50 203.89 Tm (Let $V$ denote the number of accessible vertices \($|V| = 143$\) and $E$ the number of) Tj
+1 0 0 1 50 189.89 Tm (edges.) Tj
+1 0 0 1 50 175.89 Tm () Tj
+1 0 0 1 50 161.89 Tm (### 3.1 BFS Complexity Analysis [5 Marks]) Tj
+1 0 0 1 50 147.89 Tm () Tj
+1 0 0 1 50 133.89 Tm (BFS visits each vertex once and traverses each outgoing edge once.) Tj
+1 0 0 1 50 119.88999999999999 Tm () Tj
+1 0 0 1 50 105.88999999999999 Tm (| Representation | Time Complexity | Space Complexity | Analytical Justification |) Tj
+1 0 0 1 50 91.88999999999999 Tm (|---|:---:|:---:|---|) Tj
+1 0 0 1 50 77.88999999999999 Tm (| **Adjacency Matrix** | $\\mathcal{O}\(V^2\)$ | $\\mathcal{O}\(V^2\)$ | **Time:** To find) Tj
+ET
+
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 20 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+22 0 obj
+<< /Length 4070 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (neighbors of vertex $u$, BFS must scan row $u$ of length $V$. For $V$ vertices: $V) Tj
+1 0 0 1 50 777.89 Tm (\\times \\mathcal{O}\(V\) = \\mathcal{O}\(V^2\)$.<br>**Space:** Dominated by the $V \\times) Tj
+1 0 0 1 50 763.89 Tm (V$ matrix $\\mathcal{O}\(V^2\)$; queue and visited sets require $\\mathcal{O}\(V\)$. |) Tj
+1 0 0 1 50 749.89 Tm (| **Adjacency List** | $\\mathcal{O}\(V + E\)$ | $\\mathcal{O}\(V + E\)$ | **Time:** Vertex) Tj
+1 0 0 1 50 735.89 Tm (dequeued once $\\mathcal{O}\(V\)$; each outgoing edge inspected once across all lists) Tj
+1 0 0 1 50 721.89 Tm ($\\mathcal{O}\(E\)$. For sparse grids \($E \\le 6V$\), $\\mathcal{O}\(V+E\) =) Tj
+1 0 0 1 50 707.89 Tm (\\mathcal{O}\(V\)$.<br>**Space:** Lists store $V$ headers and $2E$ nodes) Tj
+1 0 0 1 50 693.89 Tm ($\\mathcal{O}\(V+E\)$. |) Tj
+1 0 0 1 50 679.89 Tm () Tj
+1 0 0 1 50 665.89 Tm (---) Tj
+1 0 0 1 50 651.89 Tm () Tj
+1 0 0 1 50 637.89 Tm (### 3.2 DFS Complexity Analysis [5 Marks]) Tj
+1 0 0 1 50 623.89 Tm () Tj
+1 0 0 1 50 609.89 Tm (Both Iterative \(Stack\) and Recursive DFS exhibit identical asymptotic bounds:) Tj
+1 0 0 1 50 595.89 Tm () Tj
+1 0 0 1 50 581.89 Tm (| Representation | Time \(Iterative\) | Time \(Recursive\) | Space \(Iterative\) | Space) Tj
+1 0 0 1 50 567.89 Tm (\(Recursive\) |) Tj
+1 0 0 1 50 553.89 Tm (|---|:---:|:---:|:---:|:---:|) Tj
+1 0 0 1 50 539.89 Tm (| **Adjacency Matrix** | $\\mathcal{O}\(V^2\)$ | $\\mathcal{O}\(V^2\)$ | $\\mathcal{O}\(V^2\)$) Tj
+1 0 0 1 50 525.89 Tm (| $\\mathcal{O}\(V^2\)$ |) Tj
+1 0 0 1 50 511.89 Tm (| **Adjacency List** | $\\mathcal{O}\(V + E\)$ | $\\mathcal{O}\(V + E\)$ | $\\mathcal{O}\(V +) Tj
+1 0 0 1 50 497.89 Tm (E\)$ | $\\mathcal{O}\(V + E\)$ |) Tj
+1 0 0 1 50 483.89 Tm () Tj
+1 0 0 1 50 469.89 Tm (#### Justification) Tj
+1 0 0 1 50 455.89 Tm (* **Adjacency Matrix:** Finding unvisited neighbors requires scanning an entire row) Tj
+1 0 0 1 50 441.89 Tm (of length $V$ for each vertex $\\rightarrow \\mathcal{O}\(V^2\)$ time. Space is) Tj
+1 0 0 1 50 427.89 Tm ($\\mathcal{O}\(V^2\)$ for the matrix storage.) Tj
+1 0 0 1 50 413.89 Tm (* **Adjacency List:** Every vertex and incident edge is explored once $\\rightarrow) Tj
+1 0 0 1 50 399.89 Tm (\\mathcal{O}\(V + E\)$ time. Space requires $\\mathcal{O}\(V + E\)$ for adjacency storage.) Tj
+1 0 0 1 50 385.89 Tm (* **Auxiliary Memory Difference:**) Tj
+1 0 0 1 50 371.89 Tm (  * Iterative DFS uses an explicit heap-allocated `Stack` of maximum depth $V) Tj
+1 0 0 1 50 357.89 Tm (\\rightarrow \\mathcal{O}\(V\)$.) Tj
+1 0 0 1 50 343.89 Tm (  * Recursive DFS uses OS call-stack frames of maximum depth $V \\rightarrow) Tj
+1 0 0 1 50 329.89 Tm (\\mathcal{O}\(V\)$. In environments with limited stack sizes \(e.g. Python default of) Tj
+1 0 0 1 50 315.89 Tm (1,000 frames\), deep recursion risks `RecursionError` unless execution is isolated in) Tj
+1 0 0 1 50 301.89 Tm (a thread with expanded stack memory.) Tj
+1 0 0 1 50 287.89 Tm () Tj
+1 0 0 1 50 273.89 Tm (---) Tj
+1 0 0 1 50 259.89 Tm () Tj
+1 0 0 1 50 245.89 Tm (### 3.3 Shortest-Path Guarantee [5 Marks]) Tj
+1 0 0 1 50 231.89 Tm () Tj
+1 0 0 1 50 217.89 Tm (**Question:** *Which of BFS and DFS guarantees a shortest path in the given robot) Tj
+1 0 0 1 50 203.89 Tm (navigation environment? Explain by considering movement and obstacle-related costs.*) Tj
+1 0 0 1 50 189.89 Tm () Tj
+1 0 0 1 50 175.89 Tm (#### Rigorous Answer: NEITHER BFS NOR DFS GUARANTEES A MINIMUM-COST PATH.) Tj
+1 0 0 1 50 161.89 Tm () Tj
+1 0 0 1 50 147.89 Tm (1. **Failure of BFS for Cost Minimization:**) Tj
+1 0 0 1 50 133.89 Tm (   * BFS guarantees the shortest path **strictly in terms of the number of edges) Tj
+1 0 0 1 50 119.88999999999999 Tm (\(unweighted hop count\)**.) Tj
+1 0 0 1 50 105.88999999999999 Tm (   * If edge weights are positive and uniform, fewest hops equals lowest cost.) Tj
+1 0 0 1 50 91.88999999999999 Tm (   * In this environment, costs are **heterogeneous and asymmetric** \(ranging from) Tj
+1 0 0 1 50 77.88999999999999 Tm ($-3$ for Up-Left to $+3$ for Up-Right, plus $+5$ destruction and penalty fees\).) Tj
+ET
+
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 22 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+24 0 obj
+<< /Length 4074 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (   * Most critically, the directed graph contains **negative-cost cycles**:) Tj
+1 0 0 1 50 777.89 Tm (     $$\\text{Up-Left } \(-3\) + \\text{Right } \(+2\) + \\text{Down } \(-1\) = -2$$) Tj
+1 0 0 1 50 763.89 Tm (   * In a graph with negative cycles, a minimum-cost walk is **unbounded below) Tj
+1 0 0 1 50 749.89 Tm (\($-\\infty$\)** because traversing the loop repeatedly reduces total cost indefinitely.) Tj
+1 0 0 1 50 735.89 Tm (For simple paths \(no repeated vertices\), the problem is NP-hard. BFS does not) Tj
+1 0 0 1 50 721.89 Tm (evaluate edge weights and thus cannot minimize cost.) Tj
+1 0 0 1 50 707.89 Tm () Tj
+1 0 0 1 50 693.89 Tm (2. **Failure of DFS for Cost Minimization:**) Tj
+1 0 0 1 50 679.89 Tm (   * DFS commits to the first path leading to the goal along its search branch.) Tj
+1 0 0 1 50 665.89 Tm (   * As demonstrated in our experiments, changing successor ordering alters path cost) Tj
+1 0 0 1 50 651.89 Tm (from $34$ to $75$ on the identical grid. DFS provides zero optimality guarantees.) Tj
+1 0 0 1 50 637.89 Tm () Tj
+1 0 0 1 50 623.89 Tm (3. **Algorithm that WOULD Guarantee Shortest Path:**) Tj
+1 0 0 1 50 609.89 Tm (   * For non-negative weighted graphs: **Dijkstras Algorithm** with a priority queue) Tj
+1 0 0 1 50 595.89 Tm (in $\\mathcal{O}\(\(V + E\) \\log V\)$.) Tj
+1 0 0 1 50 581.89 Tm (   * For general graphs with negative edges but NO negative cycles: **Bellman-Ford) Tj
+1 0 0 1 50 567.89 Tm (Algorithm** in $\\mathcal{O}\(V \\cdot E\)$.) Tj
+1 0 0 1 50 553.89 Tm () Tj
+1 0 0 1 50 539.89 Tm (---) Tj
+1 0 0 1 50 525.89 Tm () Tj
+1 0 0 1 50 511.89 Tm (### 3.4 Minimum Spanning Tree Complexity Comparison [5 Marks]) Tj
+1 0 0 1 50 497.89 Tm () Tj
+1 0 0 1 50 483.89 Tm (| Algorithm | Representation | Time Complexity | Space Complexity | Optimal Graph) Tj
+1 0 0 1 50 469.89 Tm (Type |) Tj
+1 0 0 1 50 455.89 Tm (|---|---|:---:|:---:|---|) Tj
+1 0 0 1 50 441.89 Tm (| **Prims** | Adjacency Matrix | $\\mathcal{O}\(V^2\)$ | $\\mathcal{O}\(V^2\)$ | Dense) Tj
+1 0 0 1 50 427.89 Tm (graphs \($E \\approx V^2$\) |) Tj
+1 0 0 1 50 413.89 Tm (| **Prims** | Adjacency List + Binary Heap | $\\mathcal{O}\(\(V + E\) \\log V\)$ |) Tj
+1 0 0 1 50 399.89 Tm ($\\mathcal{O}\(V + E\)$ | Sparse graphs \($E \\ll V^2$\) |) Tj
+1 0 0 1 50 385.89 Tm (| **Kruskals** | Adjacency Matrix | $\\mathcal{O}\(V^2 \\log V\)$ | $\\mathcal{O}\(V^2\)$ |) Tj
+1 0 0 1 50 371.89 Tm (Inefficient \(must extract edges first\) |) Tj
+1 0 0 1 50 357.89 Tm (| **Kruskals** | Adjacency List + DSU | $\\mathcal{O}\(E \\log E\)$ | $\\mathcal{O}\(V +) Tj
+1 0 0 1 50 343.89 Tm (E\)$ | Sparse graphs / Edge lists |) Tj
+1 0 0 1 50 329.89 Tm () Tj
+1 0 0 1 50 315.89 Tm (#### Comparative Discussion) Tj
+1 0 0 1 50 301.89 Tm (* On our planar grid, $E \\le 4V$, making the graph **sparse**.) Tj
+1 0 0 1 50 287.89 Tm (* With adjacency lists, Kruskals time is $\\mathcal{O}\(E \\log E\) \\approx) Tj
+1 0 0 1 50 273.89 Tm (\\mathcal{O}\(V \\log V\)$, and Prims time is $\\mathcal{O}\(E \\log V\) \\approx) Tj
+1 0 0 1 50 259.89 Tm (\\mathcal{O}\(V \\log V\)$. Both run in practically identical, near-linear time.) Tj
+1 0 0 1 50 245.89 Tm (* Prim grows a localized tree and is simpler when vertices are known in advance.) Tj
+1 0 0 1 50 231.89 Tm (Kruskal processes independent edges globally and naturally constructs Minimum) Tj
+1 0 0 1 50 217.89 Tm (Spanning Forests for disconnected graphs without extra restart logic.) Tj
+1 0 0 1 50 203.89 Tm () Tj
+1 0 0 1 50 189.89 Tm (---) Tj
+1 0 0 1 50 175.89 Tm () Tj
+1 0 0 1 50 161.89 Tm (## 4. Question 4: Prims & Kruskals Theoretical Proofs) Tj
+1 0 0 1 50 147.89 Tm () Tj
+1 0 0 1 50 133.89 Tm (### 4.1 Kruskals Algorithm Tie-Handling Proof [7 Marks]) Tj
+1 0 0 1 50 119.88999999999999 Tm () Tj
+1 0 0 1 50 105.88999999999999 Tm (#### Theorem) Tj
+1 0 0 1 50 91.88999999999999 Tm (*Let $G = \(V, E, w\)$ be a connected, weighted, undirected graph, and let $T$ be an) Tj
+1 0 0 1 50 77.88999999999999 Tm (arbitrary Minimum Spanning Tree of $G$. Then there exists an ordering of the edges of) Tj
+ET
+
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 24 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+26 0 obj
+<< /Length 4041 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm ($G$ such that Kruskals algorithm, when processing edges in this order, outputs) Tj
+1 0 0 1 50 777.89 Tm (exactly $T$.*) Tj
+1 0 0 1 50 763.89 Tm () Tj
+1 0 0 1 50 749.89 Tm (#### Formal Inductive Proof) Tj
+1 0 0 1 50 735.89 Tm (1. **Partition by Weight:**) Tj
+1 0 0 1 50 721.89 Tm (   Let the distinct edge weights in $G$ be $w_1 < w_2 < \\dots < w_k$.) Tj
+1 0 0 1 50 707.89 Tm (   Partition the entire edge set $E$ into equivalence classes by weight:) Tj
+1 0 0 1 50 693.89 Tm (   $$E_i = \\{e \\in E \\mid w\(e\) = w_i\\}$$) Tj
+1 0 0 1 50 679.89 Tm (   Similarly, let $T_i = T \\cap E_i$ be the set of edges in $T$ having weight $w_i$.) Tj
+1 0 0 1 50 665.89 Tm () Tj
+1 0 0 1 50 651.89 Tm (2. **Construction of Ordering $\\sigma$:**) Tj
+1 0 0 1 50 637.89 Tm (   Construct a total ordering $\\sigma$ of $E$ adhering to non-decreasing weights:) Tj
+1 0 0 1 50 623.89 Tm (   * For each weight class $E_i$, arrange the edges such that all edges belonging to) Tj
+1 0 0 1 50 609.89 Tm ($T_i$ appear **strictly before** all edges in $E_i \\setminus T_i$.) Tj
+1 0 0 1 50 595.89 Tm (   * Concatenate these ordered classes:) Tj
+1 0 0 1 50 581.89 Tm (     $$\\sigma = \\big\( \\text{edges in } T_1, \\; E_1 \\setminus T_1, \\; \\text{edges in }) Tj
+1 0 0 1 50 567.89 Tm (T_2, \\; E_2 \\setminus T_2, \\; \\dots, \\; \\text{edges in } T_k, \\; E_k \\setminus T_k) Tj
+1 0 0 1 50 553.89 Tm (\\big\)$$) Tj
+1 0 0 1 50 539.89 Tm () Tj
+1 0 0 1 50 525.89 Tm (3. **Inductive Hypothesis:**) Tj
+1 0 0 1 50 511.89 Tm (   *Claim:* After Kruskals algorithm finishes processing all edges of weight $\\le) Tj
+1 0 0 1 50 497.89 Tm (w_i$, the set of edges accepted by Kruskal is exactly:) Tj
+1 0 0 1 50 483.89 Tm (   $$\\bigcup_{j=1}^i T_j$$) Tj
+1 0 0 1 50 469.89 Tm () Tj
+1 0 0 1 50 455.89 Tm (4. **Base Case \($i = 0$\):**) Tj
+1 0 0 1 50 441.89 Tm (   Before processing any edges, Kruskals accepted edge set is $\\emptyset$, matching) Tj
+1 0 0 1 50 427.89 Tm (the base set.) Tj
+1 0 0 1 50 413.89 Tm () Tj
+1 0 0 1 50 399.89 Tm (5. **Inductive Step:**) Tj
+1 0 0 1 50 385.89 Tm (   Assume the claim holds for weight class $w_{i-1}$. That is, the current forest) Tj
+1 0 0 1 50 371.89 Tm (maintained by the Disjoint-Set Union \(DSU\) structure consists exactly of the edges) Tj
+1 0 0 1 50 357.89 Tm ($T_1 \\cup \\dots \\cup T_{i-1}$.) Tj
+1 0 0 1 50 343.89 Tm (   Now Kruskal processes edges of weight $w_i$:) Tj
+1 0 0 1 50 329.89 Tm (   ) Tj
+1 0 0 1 50 315.89 Tm (   * **Phase A \(Edges in $T_i$\):**) Tj
+1 0 0 1 50 301.89 Tm (     Let $e = \(u, v\) \\in T_i$. ) Tj
+1 0 0 1 50 287.89 Tm (     Suppose for contradiction that $u$ and $v$ are already in the same connected) Tj
+1 0 0 1 50 273.89 Tm (component of the DSU. That would imply there exists a path between $u$ and $v$ using) Tj
+1 0 0 1 50 259.89 Tm (only edges from $T_1 \\cup \\dots \\cup T_{i-1} \\subseteq T$. But adding $e \\in T$ would) Tj
+1 0 0 1 50 245.89 Tm (form a cycle in $T$, violating the fact that $T$ is a tree.) Tj
+1 0 0 1 50 231.89 Tm (     Therefore, $u$ and $v$ must belong to distinct components:) Tj
+1 0 0 1 50 217.89 Tm (     $$\\text{DSU.find}\(u\) \\neq \\text{DSU.find}\(v\)$$) Tj
+1 0 0 1 50 203.89 Tm (     Hence, Kruskal **must accept** every edge $e \\in T_i$.) Tj
+1 0 0 1 50 189.89 Tm () Tj
+1 0 0 1 50 175.89 Tm (   * **Phase B \(Edges in $E_i \\setminus T_i$\):**) Tj
+1 0 0 1 50 161.89 Tm (     Let $e' = \(x, y\) \\in E_i \\setminus T_i$.) Tj
+1 0 0 1 50 147.89 Tm (     Since $T$ is a spanning tree, adding $e'$ to $T$ produces a unique fundamental) Tj
+1 0 0 1 50 133.89 Tm (cycle $C$.) Tj
+1 0 0 1 50 119.88999999999999 Tm (     Because $T$ is an MST, no edge on $C$ can have a weight strictly greater than) Tj
+1 0 0 1 50 105.88999999999999 Tm ($w\(e'\) = w_i$ \(by the Cycle Property of MSTs\).) Tj
+1 0 0 1 50 91.88999999999999 Tm (     Thus, all edges on cycle $C$ belong to $T$ and have weight $\\le w_i$.) Tj
+1 0 0 1 50 77.88999999999999 Tm (     All such edges \($T_1 \\cup \\dots \\cup T_i$\) have already been accepted by Kruskal) Tj
+ET
+
+endstream
+endobj
+27 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 26 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+28 0 obj
+<< /Length 3789 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (in earlier steps and Phase A.) Tj
+1 0 0 1 50 777.89 Tm (     Consequently, $x$ and $y$ are already connected in the DSU forest.) Tj
+1 0 0 1 50 763.89 Tm (     Therefore, Kruskal **must reject** every edge $e' \\in E_i \\setminus T_i$.) Tj
+1 0 0 1 50 749.89 Tm () Tj
+1 0 0 1 50 735.89 Tm (6. **Conclusion:**) Tj
+1 0 0 1 50 721.89 Tm (   By mathematical induction, the invariant holds across all $k$ weight classes. The) Tj
+1 0 0 1 50 707.89 Tm (total set of edges accepted by Kruskal is:) Tj
+1 0 0 1 50 693.89 Tm (   $$\\bigcup_{i=1}^k T_i = T$$) Tj
+1 0 0 1 50 679.89 Tm (   Thus, Kruskals algorithm outputs exactly $T$. $\\blacksquare$) Tj
+1 0 0 1 50 665.89 Tm () Tj
+1 0 0 1 50 651.89 Tm (---) Tj
+1 0 0 1 50 637.89 Tm () Tj
+1 0 0 1 50 623.89 Tm (### 4.2 Fast MST Algorithms with Bounded Integer Weights [8 Marks]) Tj
+1 0 0 1 50 609.89 Tm () Tj
+1 0 0 1 50 595.89 Tm (Standard comparison-based sorting incurs an $\\Omega\(E \\log E\)$ lower bound. However,) Tj
+1 0 0 1 50 581.89 Tm (when edge weights are bounded integers, non-comparison methods and specialized) Tj
+1 0 0 1 50 567.89 Tm (priority queues allow significant acceleration.) Tj
+1 0 0 1 50 553.89 Tm () Tj
+1 0 0 1 50 539.89 Tm (#### \(i\) Prims Algorithm with Bounded Integer Weights) Tj
+1 0 0 1 50 525.89 Tm () Tj
+1 0 0 1 50 511.89 Tm (##### Case 1: Weights are integers in $\\{1, 2, \\dots, |V|\\}$) Tj
+1 0 0 1 50 497.89 Tm (* **Data Structure:** **Dials Algorithm \(Bucket Queue\)**.) Tj
+1 0 0 1 50 483.89 Tm (  We maintain an array of buckets numbered $0$ to $|V|$, where bucket $k$ contains a) Tj
+1 0 0 1 50 469.89 Tm (doubly-linked list of vertices whose current minimum cut edge weight is $k$.) Tj
+1 0 0 1 50 455.89 Tm (* **Operations:**) Tj
+1 0 0 1 50 441.89 Tm (  * `decrease_key`: Moving a vertex to a smaller bucket index takes $\\mathcal{O}\(1\)$) Tj
+1 0 0 1 50 427.89 Tm (time.) Tj
+1 0 0 1 50 413.89 Tm (  * `extract_min`: Scanned sequentially. Since edge weights are bounded by $|V|$, the) Tj
+1 0 0 1 50 399.89 Tm (minimum pointer only advances monotonically forward, scanning at most $|V|$ empty) Tj
+1 0 0 1 50 385.89 Tm (buckets across the entire execution.) Tj
+1 0 0 1 50 371.89 Tm (* **Running Time:**) Tj
+1 0 0 1 50 357.89 Tm (  $$\\mathcal{O}\(V + E + |V|\) = \\mathcal{O}\(V + E\)$$) Tj
+1 0 0 1 50 343.89 Tm (* *Alternative:* Using a **Van Emde Boas \(vEB\) tree** yields $\\mathcal{O}\(\(V + E\)) Tj
+1 0 0 1 50 329.89 Tm (\\log \\log V\)$.) Tj
+1 0 0 1 50 315.89 Tm () Tj
+1 0 0 1 50 301.89 Tm (##### Case 2: Weights are integers in $\\{1, 2, \\dots, W\\}$ for constant $W$) Tj
+1 0 0 1 50 287.89 Tm (* Dials bucket queue contains only $W$ buckets.) Tj
+1 0 0 1 50 273.89 Tm (* Bucket pointer wrap-around occurs in $\\mathcal{O}\(W\) = \\mathcal{O}\(1\)$ time.) Tj
+1 0 0 1 50 259.89 Tm (* **Running Time:**) Tj
+1 0 0 1 50 245.89 Tm (  $$\\mathcal{O}\(V + E + W\) = \\mathcal{O}\(V + E\)$$) Tj
+1 0 0 1 50 231.89 Tm () Tj
+1 0 0 1 50 217.89 Tm (---) Tj
+1 0 0 1 50 203.89 Tm () Tj
+1 0 0 1 50 189.89 Tm (#### \(ii\) Kruskals Algorithm with Bounded Integer Weights) Tj
+1 0 0 1 50 175.89 Tm () Tj
+1 0 0 1 50 161.89 Tm (The asymptotic bottleneck in Kruskals algorithm is sorting the edges.) Tj
+1 0 0 1 50 147.89 Tm () Tj
+1 0 0 1 50 133.89 Tm (##### Case 1: Weights are integers in $\\{1, 2, \\dots, |V|\\}$) Tj
+1 0 0 1 50 119.88999999999999 Tm (* **Edge Sorting:** Instead of comparison sort, use **Counting Sort**.) Tj
+1 0 0 1 50 105.88999999999999 Tm (  With $|V|$ buckets and $E$ edges, Counting Sort runs in:) Tj
+1 0 0 1 50 91.88999999999999 Tm (  $$\\mathcal{O}\(E + |V|\) \\text{ time and } \\mathcal{O}\(E + |V|\) \\text{ space}$$) Tj
+1 0 0 1 50 77.88999999999999 Tm (* **DSU Operations:** Processing $E$ union-find operations with path compression and) Tj
+ET
+
+endstream
+endobj
+29 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 28 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+30 0 obj
+<< /Length 4097 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (rank takes:) Tj
+1 0 0 1 50 777.89 Tm (  $$\\mathcal{O}\(E \\cdot \\alpha\(V\)\) \\text{ time}$$) Tj
+1 0 0 1 50 763.89 Tm (* **Total Running Time:**) Tj
+1 0 0 1 50 749.89 Tm (  $$\\mathcal{O}\(E + V + E \\cdot \\alpha\(V\)\) = \\mathcal{O}\(E \\cdot \\alpha\(V\) + V\)) Tj
+1 0 0 1 50 735.89 Tm (\\approx \\mathcal{O}\(V + E\)$$) Tj
+1 0 0 1 50 721.89 Tm (  *\(Since $\\alpha\(V\) \\le 4$ for all practical input sizes, this is essentially linear) Tj
+1 0 0 1 50 707.89 Tm (time\).*) Tj
+1 0 0 1 50 693.89 Tm () Tj
+1 0 0 1 50 679.89 Tm (##### Case 2: Weights are integers in $\\{1, 2, \\dots, W\\}$ for constant $W$) Tj
+1 0 0 1 50 665.89 Tm (* Counting Sort requires $W$ counters:) Tj
+1 0 0 1 50 651.89 Tm (  $$\\mathcal{O}\(E + W\) = \\mathcal{O}\(E\) \\text{ time}$$) Tj
+1 0 0 1 50 637.89 Tm (* **Total Running Time:**) Tj
+1 0 0 1 50 623.89 Tm (  $$\\mathcal{O}\(E \\cdot \\alpha\(V\)\) \\approx \\mathcal{O}\(E\)$$) Tj
+1 0 0 1 50 609.89 Tm (  This matches the theoretical lower bound, as inspecting every edge requires) Tj
+1 0 0 1 50 595.89 Tm ($\\Omega\(E\)$ time.) Tj
+1 0 0 1 50 581.89 Tm () Tj
+1 0 0 1 50 567.89 Tm (---) Tj
+1 0 0 1 50 553.89 Tm () Tj
+1 0 0 1 50 539.89 Tm (## 5. System Architecture & Custom Data Structures) Tj
+1 0 0 1 50 525.89 Tm () Tj
+1 0 0 1 50 511.89 Tm (Course guidelines strictly prohibit built-in algorithmic libraries. All data) Tj
+1 0 0 1 50 497.89 Tm (structures were designed from first principles in) Tj
+1 0 0 1 50 483.89 Tm ([data_structures.py]\(file:///d:/Documents/Algo_complete%20material/Assignment-5/DAA_A) Tj
+1 0 0 1 50 469.89 Tm (4_RollNo_FirstName/data_structures.py\):) Tj
+1 0 0 1 50 455.89 Tm () Tj
+1 0 0 1 50 441.89 Tm (```) Tj
+1 0 0 1 50 427.89 Tm (+-------------------------------------------------------------------------------+) Tj
+1 0 0 1 50 413.89 Tm (|                        CUSTOM DATA STRUCTURES ARCHITECTURE                    |) Tj
+1 0 0 1 50 399.89 Tm (+-------------------------------------------------------------------------------+) Tj
+1 0 0 1 50 385.89 Tm (|  Module               Class / Function   Underlying Design     Complexity     |) Tj
+1 0 0 1 50 371.89 Tm (|---------------------+------------------+---------------------+----------------|) Tj
+1 0 0 1 50 357.89 Tm (| data_structures.py  | Queue            | Array + Head Pointer| O\(1\) ops       |) Tj
+1 0 0 1 50 343.89 Tm (| data_structures.py  | Stack            | Dynamic Array LIFO  | O\(1\) push/pop  |) Tj
+1 0 0 1 50 329.89 Tm (| data_structures.py  | MinHeap          | Binary Heap Array   | O\(log n\)       |) Tj
+1 0 0 1 50 315.89 Tm (| data_structures.py  | merge_sort       | Stable Merge Sort   | O\(n log n\)     |) Tj
+1 0 0 1 50 301.89 Tm (| data_structures.py  | DSU              | Rank + Compression  | O\(alpha\(n\)\)    |) Tj
+1 0 0 1 50 287.89 Tm (+-------------------------------------------------------------------------------+) Tj
+1 0 0 1 50 273.89 Tm (```) Tj
+1 0 0 1 50 259.89 Tm () Tj
+1 0 0 1 50 245.89 Tm (1. **`Queue`:** Implemented with an array and a moving head index \(`_head`\). Dequeue) Tj
+1 0 0 1 50 231.89 Tm (advances the index in $\\mathcal{O}\(1\)$ time without $\\mathcal{O}\(n\)$ list-shifting) Tj
+1 0 0 1 50 217.89 Tm (penalties.) Tj
+1 0 0 1 50 203.89 Tm (2. **`Stack`:** Implemented with dynamic list append and pop in $\\mathcal{O}\(1\)$) Tj
+1 0 0 1 50 189.89 Tm (time.) Tj
+1 0 0 1 50 175.89 Tm (3. **`MinHeap`:** Binary min-heap storing `\(key, payload\)` pairs with standard) Tj
+1 0 0 1 50 161.89 Tm (bubble-up and bubble-down routines for Prim's priority queue.) Tj
+1 0 0 1 50 147.89 Tm (4. **`merge_sort`:** Stable divide-and-conquer sorting algorithm ensuring predictable) Tj
+1 0 0 1 50 133.89 Tm (tie-handling for Kruskal's edge ordering.) Tj
+1 0 0 1 50 119.88999999999999 Tm (5. **`DSU`:** Disjoint-Set Union with path compression \(`parent[x] =) Tj
+1 0 0 1 50 105.88999999999999 Tm (find\(parent[x]\)`\) and union by rank, reducing amortized operation time to inverse) Tj
+1 0 0 1 50 91.88999999999999 Tm (Ackermann $\\mathcal{O}\(\\alpha\(n\)\)$.) Tj
+1 0 0 1 50 77.88999999999999 Tm () Tj
+ET
+
+endstream
+endobj
+31 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 30 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+32 0 obj
+<< /Length 2994 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 50 791.89 Tm (---) Tj
+1 0 0 1 50 777.89 Tm () Tj
+1 0 0 1 50 763.89 Tm (## 6. Discussion, Comments, and Conclusion) Tj
+1 0 0 1 50 749.89 Tm () Tj
+1 0 0 1 50 735.89 Tm (### 6.1 Critical Observations & Comments) Tj
+1 0 0 1 50 721.89 Tm (* **The Interplay of Energy and Graph Traversal:** In standard grid pathfinding,) Tj
+1 0 0 1 50 707.89 Tm (visiting the same $\(x, y\)$ coordinate multiple times indicates a cycle. However, in) Tj
+1 0 0 1 50 693.89 Tm (this problem, revisiting an $\(x, y\)$ cell with a different destroyed bitmask is often) Tj
+1 0 0 1 50 679.89 Tm (necessary to backtrack, collect bonuses, or circumvent walls.) Tj
+1 0 0 1 50 665.89 Tm (* **Negative-Cost Cycles in Navigation:** The presence of $UL\(-3\) + R\(+2\) + D\(-1\) =) Tj
+1 0 0 1 50 651.89 Tm (-2$ demonstrates why shortest-path problems with negative cycles are unbounded unless) Tj
+1 0 0 1 50 637.89 Tm (constrained to simple paths.) Tj
+1 0 0 1 50 623.89 Tm (* **Tie-Breaking in MST:** Both Prims and Kruskals algorithms found identical MST) Tj
+1 0 0 1 50 609.89 Tm (weights \($142.000$\) but differed in edge choices \($103$ shared out of $142$\). This) Tj
+1 0 0 1 50 595.89 Tm (empirical result provides practical validation for the cycle-cut theorem and) Tj
+1 0 0 1 50 581.89 Tm (theoretical proof derived in Question 4\(a\).) Tj
+1 0 0 1 50 567.89 Tm () Tj
+1 0 0 1 50 553.89 Tm (### 6.2 Conclusion) Tj
+1 0 0 1 50 539.89 Tm (All requirements of Assignment 4 have been successfully satisfied:) Tj
+1 0 0 1 50 525.89 Tm (1. **Graph Modelling:** The grid is fully formulated as a dynamic, directed) Tj
+1 0 0 1 50 511.89 Tm (state-space graph with complete state tuples $\(x, y, \\text{energy}, \\text{mask}\)$.) Tj
+1 0 0 1 50 497.89 Tm (2. **Search Algorithms:** BFS and both DFS variants \(iterative stack and recursive\)) Tj
+1 0 0 1 50 483.89 Tm (were implemented, producing concrete paths, traversal sequences, and energy) Tj
+1 0 0 1 50 469.89 Tm (calculations.) Tj
+1 0 0 1 50 455.89 Tm (3. **MST Computation:** Both Prim's and Kruskal's algorithms were implemented from) Tj
+1 0 0 1 50 441.89 Tm (first principles, successfully identifying a single connected MST of weight) Tj
+1 0 0 1 50 427.89 Tm ($142.000000$.) Tj
+1 0 0 1 50 413.89 Tm (4. **Complexity & Theory:** Comprehensive complexity comparisons across adjacency) Tj
+1 0 0 1 50 399.89 Tm (matrix and list models, along with formal mathematical proofs for Kruskal) Tj
+1 0 0 1 50 385.89 Tm (tie-handling and linear-time bounded MST algorithms, were derived and documented.) Tj
+1 0 0 1 50 371.89 Tm (5. **Interactive Visualization:** An interactive web frontend was developed to) Tj
+1 0 0 1 50 357.89 Tm (visually animate and verify the results on screen.) Tj
+1 0 0 1 50 343.89 Tm () Tj
+1 0 0 1 50 329.89 Tm (---) Tj
+1 0 0 1 50 315.89 Tm (*Report prepared by Balaj \(Roll No: 24f-0571\) for CS2009 Design and Analysis of) Tj
+1 0 0 1 50 301.89 Tm (Algorithms, FAST-NUCES Chiniot-Faisalabad Campus.*) Tj
+1 0 0 1 50 287.89 Tm () Tj
+ET
+
+endstream
+endobj
+33 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 32 0 R /Resources << /Font << /F1 3 0 R >> >> >>
+endobj
+xref
+0 34
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000212 00000 n 
+0000000282 00000 n 
+0000004154 00000 n 
+0000004286 00000 n 
+0000008198 00000 n 
+0000008330 00000 n 
+0000012637 00000 n 
+0000012769 00000 n 
+0000016669 00000 n 
+0000016803 00000 n 
+0000021433 00000 n 
+0000021567 00000 n 
+0000025905 00000 n 
+0000026039 00000 n 
+0000030101 00000 n 
+0000030235 00000 n 
+0000033892 00000 n 
+0000034026 00000 n 
+0000037637 00000 n 
+0000037771 00000 n 
+0000041894 00000 n 
+0000042028 00000 n 
+0000046155 00000 n 
+0000046289 00000 n 
+0000050383 00000 n 
+0000050517 00000 n 
+0000054359 00000 n 
+0000054493 00000 n 
+0000058643 00000 n 
+0000058777 00000 n 
+0000061824 00000 n 
+trailer
+<< /Size 34 /Root 1 0 R >>
+startxref
+61958
+%%EOF
