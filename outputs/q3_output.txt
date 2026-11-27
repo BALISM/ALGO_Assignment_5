@@ -22,6 +22,7 @@ Q3.1  BFS COMPLEXITY
 BFS visits every reachable state at most once and examines every
 outgoing edge of each visited state exactly once.
 
+
 ------------------------------------------------------------
 Representation 1 : Adjacency MATRIX
 ------------------------------------------------------------
@@ -86,6 +87,7 @@ Q3.2  DFS COMPLEXITY
 Two DFS variants are implemented: iterative (stack-based) and recursive.
 Both visit each reachable state at most once and examine each edge once,
 so their asymptotic complexities are identical to each other.
+
 
 ------------------------------------------------------------
 Representation 1 : Adjacency MATRIX  (both iterative and recursive)
@@ -221,6 +223,7 @@ Q3.4  PRIM'S vs KRUSKAL'S ALGORITHM COMPLEXITY
 
 For the MST problem V = 143 accessible cells, E <= 429 edges (undirected).
 
+
 ------------------------------------------------------------
 Prim's Algorithm
 ------------------------------------------------------------
@@ -245,9 +248,10 @@ Representation 2 : Adjacency LIST + Binary Min-Heap (implemented)
          = O(E log V)  since E >= V-1 for a connected graph
   Space: O(V + E) for adjacency lists + O(V) for the heap = O(V + E)
 
-  For our grid: V=143, E<=429 => O(E log V) = O(429 * 7.2) ~ O(3088).
+  For our grid: V=143, E<=429 => O(E log V) = O(429 * 8.0) ~ O(3432).
 
   With a Fibonacci heap the time improves to O(E + V log V).
+
 
 ------------------------------------------------------------
 Kruskal's Algorithm
@@ -276,7 +280,7 @@ Representation 2 : Adjacency LIST
   Space: O(V + E) adjacency lists + O(E) sorted edge array + O(V) DSU
        = O(V + E)
 
-  For our grid: E<=429 => O(E log E) ~ O(429 * 8.7) ~ O(3733).
+  For our grid: E<=429 => O(E log E) ~ O(429 * 9.0) ~ O(3861).
 
 Summary Prim vs Kruskal
   +------------+--------------------+--------------------+--------------------+--------------------+

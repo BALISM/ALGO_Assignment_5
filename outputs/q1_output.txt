@@ -23,6 +23,140 @@ Note on costs: moves Left (-1), Down (-1) and Up-Left (-3) are NEGATIVE.
    (unbounded below) and neither BFS nor DFS can promise a minimum-cost path (see report).
 
 ==============================================================================
+TASK 1 : GRAPH MODELLING AND PROBLEM FORMULATION
+==============================================================================
+
+1. GRAPH REPRESENTATION
+----------------------------------------
+   The 15x15 navigation grid is modelled as a WEIGHTED DIRECTED GRAPH G = (S, A, c)
+   where:
+     S  = set of robot states  (see item 6 for state definition)
+     A  = set of directed arcs (transitions between states)
+     c  = cost function  c : A -> R  (can be negative)
+
+   Conceptually, every non-wall grid cell is a potential vertex.  However,
+   because the robot tracks remaining energy and which blue obstacles have been
+   destroyed, two visits to the same (x, y) with different energy/mask values
+   represent DIFFERENT graph nodes.
+
+2. VERTICES, EDGES, AND MOVEMENT COSTS
+----------------------------------------
+   Grid size      : 15 x 15 = 225 cells total
+   Permanent walls: 82 orange (O) cells  -- excluded from the graph
+   Accessible cells (potential vertex positions): 143
+   Blue obstacles : 15  (B, B+, B-)
+
+   Each non-wall cell (x, y) can have up to 6 outgoing directed edges,
+   one per permitted move direction:
+
+     Move      Vector    Edge cost
+     --------  --------  ---------
+     Right     (+1,+0)    +2
+     Left      (-1,+0)    -1
+     Up        (+0,+1)    +2
+     Down      (+0,-1)    -1
+     Up-Right  (+1,+1)    +3
+     Up-Left   (-1,+1)    -3
+
+   An edge (u -> v) exists in the graph iff:
+     (a) v is inside the grid boundary,
+     (b) the cell at v is NOT a permanent (orange) obstacle,
+     (c) if v is an intact blue obstacle, the robot at u has >= 2 energy units
+         (so it can pay the destruction cost before entering).
+
+   Additional cost/energy events on an edge:
+     Destroying a blue cell   : energy -2, navigation cost +5
+     Entering a B+ bonus cell : energy +3  (applied once, on first entry)
+     Entering a B- penalty    : navigation cost +5  (applied once, on first entry)
+
+3. REPRESENTATION OF PERMANENT AND DESTRUCTIBLE OBSTACLES
+----------------------------------------
+   Permanent obstacles (Orange / O)
+     These cells are simply ABSENT from the graph.  No vertex is created for
+     them, and no edge points into them.  They act as absolute barriers.
+
+   Destructible obstacles (Blue / B, B+, B-)
+     Blue cells ARE included as vertices in the state graph, but they appear
+     in TWO modes depending on the destruction bit in the robot's state mask:
+
+     Intact mode  (mask bit = 0):
+       The cell is treated as a 'conditional wall'.  An incoming edge exists
+       only if the robot has enough energy (>= 2) to pay the destruction cost.
+       Traversing the edge costs: +5 (destruction) + move_cost
+       and reduces energy by 2 (or nets +1 for B+, since -2+3 = +1).
+
+     Destroyed mode  (mask bit = 1):
+       The cell is treated identically to a free cell.  Incoming edges carry
+       only the move cost; no extra energy or cost is applied.
+
+4. HOW THE GRAPH CHANGES WHEN A BLUE OBSTACLE IS DESTROYED
+----------------------------------------
+   The destruction is captured by the STATE MASK, not by mutating the graph.
+   Before destruction (mask bit i = 0):
+     States with the obstacle intact form one 'layer' of the state space.
+     Edges into cell (x,y) require energy >= 2 and carry the extra cost/bonus.
+
+   After destruction (mask bit i = 1):
+     States with the obstacle destroyed form a separate 'layer' of the state
+     space.  The (x,y) cell now has the same connectivity as a free cell in this
+     layer.  The 'destruction' edge is a one-way transition between the layers.
+
+   Concretely: when the robot at state (x0,y0,e,mask) destroys blue cell (bx,by)
+   it moves to state (bx,by, e-2+bonus, mask | bit_i).  All subsequent states
+   with mask bit i = 1 treat (bx,by) as a free cell.  The change is permanent
+   within a path: once a bit is set it cannot be unset.
+
+5. DIRECTED OR UNDIRECTED?
+----------------------------------------
+   The navigation graph is DIRECTED (and NOT symmetric).
+
+   Reason 1 – Asymmetric move costs:
+     Moving RIGHT costs +2 but LEFT costs -1.
+     Moving UP costs +2 but DOWN costs -1.
+     Moving Up-Right costs +3 but Up-Left costs -3.
+     The reverse of a Right step is a Left step with a DIFFERENT cost (-1 vs +2).
+     In an undirected graph every edge must carry a single weight, so the two
+     asymmetric directions cannot be collapsed into one undirected edge.
+
+   Reason 2 – No Down-Right, Down-Left, or Downward-diagonal moves:
+     The permitted move set is { R, L, U, D, UR, UL }.  Down-Right or Down-Left
+     are NOT permitted.  Therefore the graph is not symmetric: an edge from A to B
+     via Up-Right does NOT imply an edge from B to A via Down-Left.
+
+   Reason 3 – State-layer transitions:
+     The destruction of a blue obstacle creates a one-way transition between
+     the intact-layer and the destroyed-layer of the state space.  This is
+     inherently directed.
+
+   The graph used for MST (Question 2) is a SEPARATE undirected graph where
+   direction is ignored and symmetric weights are assigned; that is a different
+   construction, not the navigation graph.
+
+6. ROBOT STATE DEFINITION
+----------------------------------------
+   A robot state is a 4-tuple  s = (x, y, energy, mask)  where:
+
+     x      : integer column index,  1 <= x <= 15
+     y      : integer row index,     1 <= y <= 15
+     energy : remaining energy units, 0 <= energy <= 10
+     mask   : integer bitmask, 0 <= mask < 2^15 = 32768
+              bit i = 1 means blue obstacle grid.blue_cells[i] has been destroyed
+
+   Two states are identical (and merged in BFS/DFS visited sets) when
+   (x, y, mask) are equal.  Energy is NOT part of the deduplication key
+   because it is uniquely determined by mask:
+       energy = START_ENERGY
+              - 2 * |{i : mask bit i = 1}|           (destruction cost)
+              + 3 * |{i : mask bit i = 1 and cell i is B+}|  (bonus)
+   (Penalty cells affect navigation cost, not energy.)
+
+   Initial state : (7, 1, 10, 0)  -- start position, full energy, no destructions
+   Goal test     : x == 15 and y == 14  (energy and mask are ignored)
+
+   Total theoretical state space size: 143 cells x 11 energy levels x 2^15 masks = 51544064 states
+   (In practice only a small fraction of states are reachable.)
+
+==============================================================================
 TASK 2 : BREADTH-FIRST SEARCH (queue)
 ==============================================================================
 States expanded (traversal order length) : 984
@@ -135,6 +269,38 @@ Total navigation cost : 51
 Remaining energy      : 6
 Moves in path         : 15
 Blue obstacles destroyed (2): (9,3) (11,11)
+
+
+DISCUSSION: Does BFS Guarantee a Minimum-Cost Path?
+------------------------------------------------------------
+BFS guarantees the FEWEST-HOPS (minimum number of moves) path in an
+UNWEIGHTED graph, or equivalently minimum cost when all edges have equal
+and positive weight.
+
+In this environment BFS does NOT guarantee minimum cost because:
+
+  1. HETEROGENEOUS COSTS: Move costs range from -3 (Up-Left) to +3 (Up-Right).
+     BFS treats all edges equally (adds one level of breadth per move),
+     ignoring their actual costs.  A path with fewer moves can be more
+     expensive than a longer path that uses cheap (or negative-cost) moves.
+
+  2. NEGATIVE-COST CYCLES: The move set contains:
+       Up-Left (-3) + Right (+2) + Down (-1) = net -2 around a 3-cell loop.
+     This creates a negative-cost cycle in the directed graph.  With negative
+     cycles the concept of 'minimum-cost simple path' is well-defined, but the
+     concept of 'minimum-cost walk' is unbounded below (cost -> -infinity).
+     BFS neither detects nor exploits negative cycles.
+
+  3. OBSTACLE COSTS: Destruction (+5) and penalty (+5) add variable costs that
+     BFS does not account for in its level-by-level frontier expansion.
+
+CONCLUSION: BFS finds the minimum-MOVE-COUNT path (15 moves in this instance),
+but that path costs 51.  The DFS Reverse-ordering experiment found a 78-move
+path with cost only 34, demonstrating that minimum moves != minimum cost.
+For true cost minimisation with non-negative weights, Dijkstra's algorithm
+(priority-queue BFS) would be appropriate.  With negative weights but no
+negative cycles, Bellman-Ford applies.  With negative cycles the problem is
+ill-posed as a minimum-walk problem.
 
 ==============================================================================
 TASK 3(a) : ITERATIVE DFS (stack)
@@ -269,6 +435,34 @@ COMPARISON OF ITERATIVE vs RECURSIVE DFS
 ==============================================================================
 Identical traversal order : True
 Identical final path      : True
+
+
+DISCUSSION: Successor Ordering and DFS Optimality
+------------------------------------------------------------
+DFS explores states in a depth-first order that is determined entirely by
+the order in which successors are generated (the 'successor ordering').
+
+How successor ordering affects DFS
+   DFS commits to the first path it finds to the goal.  If the first
+   successor explored leads deeply into the graph before reaching the goal,
+   DFS returns that path -- regardless of whether cheaper or shorter paths
+   exist through other successors.  Changing the successor order can
+   drastically change both the traversal path and its cost:
+
+     Default  R,L,U,D,UR,UL : expands 42 states, path cost 68 (40 moves)
+     Goal-ward UR,U,R,...    : expands 43 states, path cost 75 (42 moves)
+     Reverse  UL,UR,D,...    : expands 91 states, path cost 34 (78 moves)
+
+   The REVERSE ordering happens to use more Left (-1) and Down (-1) moves,
+   reducing total cost at the expense of a much longer path.
+
+Why DFS does not produce an optimal path
+   DFS has NO backtracking to compare alternative paths once a goal is found.
+   It is a 'first-found' strategy, not a 'best-found' strategy.  An optimal
+   path would require exhaustive search (exponential) or a heuristic that
+   guarantees optimality (e.g., A* with an admissible heuristic).
+   Additionally, with negative-cost cycles in this graph, 'optimal' in the
+   minimum-cost-walk sense is undefined (unbounded below).
 
 ==============================================================================
 EFFECT OF SUCCESSOR ORDERING ON DFS (recursive DFS, different move orders)
