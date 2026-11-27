@@ -535,7 +535,7 @@ def main():
             lines.append("%-16s %10d %8d %8d %10d %10d" % (k, r["expanded"], r["moves"], r["cost"], r["energy"], r["destroyed"]))
     text = "\n".join(lines)
     print(text)
-    with open("outputs/q1_output.txt", "w") as f:
+    with open("outputs/q1_output.txt", "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 

@@ -182,7 +182,7 @@ def main():
     out("                       an MST is unique only when all weights are distinct, but its WEIGHT is always unique)")
     text = "\n".join(L)
     print(text)
-    with open("outputs/q2_output.txt", "w") as f:
+    with open("outputs/q2_output.txt", "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 
