@@ -302,8 +302,13 @@ def main():
 
 if __name__ == "__main__":
     # run in a big-stack thread so the recursive DFS cannot overflow the call stack
-    sys.setrecursionlimit(1000000)
-    threading.stack_size(512 * 1024 * 1024)
+    sys.setrecursionlimit(100000)
+    for mb in (256, 128, 64, 32, 16):          # some systems (e.g. Windows) reject huge sizes
+        try:
+            threading.stack_size(mb * 1024 * 1024)
+            break
+        except (ValueError, RuntimeError):
+            continue
     t = threading.Thread(target=main)
     t.start()
     t.join()
