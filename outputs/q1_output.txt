@@ -110,7 +110,7 @@ TASK 1 : GRAPH MODELLING AND PROBLEM FORMULATION
 ----------------------------------------
    The navigation graph is DIRECTED (and NOT symmetric).
 
-   Reason 1 – Asymmetric move costs:
+   Reason 1 â€“ Asymmetric move costs:
      Moving RIGHT costs +2 but LEFT costs -1.
      Moving UP costs +2 but DOWN costs -1.
      Moving Up-Right costs +3 but Up-Left costs -3.
@@ -118,12 +118,12 @@ TASK 1 : GRAPH MODELLING AND PROBLEM FORMULATION
      In an undirected graph every edge must carry a single weight, so the two
      asymmetric directions cannot be collapsed into one undirected edge.
 
-   Reason 2 – No Down-Right, Down-Left, or Downward-diagonal moves:
+   Reason 2 â€“ No Down-Right, Down-Left, or Downward-diagonal moves:
      The permitted move set is { R, L, U, D, UR, UL }.  Down-Right or Down-Left
      are NOT permitted.  Therefore the graph is not symmetric: an edge from A to B
      via Up-Right does NOT imply an edge from B to A via Down-Left.
 
-   Reason 3 – State-layer transitions:
+   Reason 3 â€“ State-layer transitions:
      The destruction of a blue obstacle creates a one-way transition between
      the intact-layer and the destroyed-layer of the state space.  This is
      inherently directed.

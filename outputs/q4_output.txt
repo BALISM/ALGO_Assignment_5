@@ -79,7 +79,6 @@ Corollary
   Every MST of G is a possible output of Kruskal's algorithm for some
   tie-breaking rule.  Equivalently, the set of Kruskal outputs (over all
   tie-breaking rules) is exactly the set of all MSTs of G.
-
 ==============================================================================
 Q4 (b)  FAST IMPLEMENTATIONS WITH BOUNDED INTEGER WEIGHTS
 ==============================================================================
@@ -91,6 +90,7 @@ We consider two ranges of integer weights:
 The key observation is that INTEGER edge weights allow COUNTING SORT
 (or RADIX SORT) instead of comparison-based sorting, breaking the
 O(E log E) comparison barrier.
+
 
 ------------------------------------------------------------
 Q4 (b-i)  PRIM'S ALGORITHM WITH BOUNDED INTEGER WEIGHTS
