@@ -640,33 +640,7 @@ function getDelay(id){
   return Math.round(600 / v);
 }
 
-function play(id){
-  if(!state[id]) return;
-  if(state[id].done){ reset(id); return; }
-  if(state[id].timer) return;
-  state[id].timer = setInterval(()=>{ if(!stepOnce(id)){ pause(id); } }, getDelay(id));
-}
-function pause(id){
-  if(!state[id]) return;
-  clearInterval(state[id].timer);
-  state[id].timer = null;
-}
-function step(id){
-  pause(id); stepOnce(id);
-}
-function reset(id){
-  pause(id);
-  if(!state[id]) return;
-  state[id].stepIdx = 0;
-  state[id].phase = "traversal";
-  state[id].traversedSet = new Set();
-  state[id].destroyedSet = new Set();
-  state[id].done = false;
-  redraw(id);
-  document.getElementById("prog-"+id).style.width = "0%";
-  document.getElementById("phase-"+id).textContent = "Phase: Idle";
-  document.getElementById("log-"+id).innerHTML = "";
-}
+// play/pause/step/reset are defined below as unified handlers
 
 // returns false when done
 function stepOnce(id){
