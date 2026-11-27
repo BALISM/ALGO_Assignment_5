@@ -1,8 +1,17 @@
 DAA Assignment 4 (Fall 2026) - code package
 ===========================================
-Requires only Python 3 (no third-party libraries).
+Student Name : Balaj
+Roll Number  : 24f-0571
+Course       : CS2009 Design and Analysis of Algorithms
+Instructor   : Dr. Hashim Yasin
+Institution  : FAST-NUCES Chiniot-Faisalabad Campus
 
-Files
+Report Files
+  DAA_A4_24f-0571_Balaj_Report.pdf   Official submission PDF report (15 pages)
+  DAA_A4_24f-0571_Balaj_Report.html  Printable styled HTML report
+  DAA_A4_24f-0571_Balaj_Report.md    Complete Markdown report source
+
+Source Code & Assets
   grid.txt                Input grid (Figure 1) - format explained in grid_loader.py
   data_structures.py      Own Queue, Stack, MinHeap, merge sort, Disjoint-Set Union
   grid_loader.py          Reads grid.txt and builds the Grid object
