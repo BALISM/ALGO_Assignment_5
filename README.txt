@@ -50,8 +50,8 @@ Run individual questions
   python q4_theory.py                      -> prints results, writes outputs/q4_output.txt
 
 Run all at once
-  python run_all.py grid.txt               -> runs all four and writes all output files
-  python visualizer.py grid.txt
+  py run_all.py grid.txt               -> runs all four and writes all output files
+  py visualizer.py grid.txt
 Assignment Coverage
   Q1 Task 1 : Graph modelling, vertices/edges, permanent/destructible obstacles,
               state definition, directed vs undirected discussion         [10 marks]
