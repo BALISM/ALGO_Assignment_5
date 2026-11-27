@@ -757,20 +757,6 @@ function initMST(id, edges){
   mstState[id] = { edges, stepIdx:0, timer:null, done:false };
 }
 
-function play(id){
-  // handle both algo and mst
-  if(mstState[id]!==undefined && !state[id]){
-    if(mstState[id].done){ resetMST(id); return; }
-    if(mstState[id].timer) return;
-    mstState[id].timer = setInterval(()=>{ if(!stepMST(id)){ pauseMST(id); } }, getDelay(id));
-    return;
-  }
-  if(!state[id]) return;
-  if(state[id].done){ reset2(id); return; }
-  if(state[id].timer) return;
-  state[id].timer = setInterval(()=>{ if(!stepOnce(id)){ pause2(id); } }, getDelay(id));
-}
-
 // unify play/pause/step/reset to handle both
 function play(id){
   if(mstState[id] !== undefined && state[id] === undefined){
