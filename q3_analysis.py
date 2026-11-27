@@ -377,7 +377,7 @@ def main():
     text = build_analysis(path)
     print(text)
     os.makedirs("outputs", exist_ok=True)
-    with open("outputs/q3_output.txt", "w") as f:
+    with open("outputs/q3_output.txt", "w", encoding="utf-8") as f:
         f.write(text + "\n")
 
 
